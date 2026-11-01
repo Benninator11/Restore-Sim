@@ -33,5 +33,10 @@ test('first-person shop loads, customer story plays and retro web store works', 
   await expect(page.locator('#st-pc .market-item')).toHaveCount(1);
   await page.locator('#st-pc [data-market-k]').click();
   await expect(page.locator('#st-pc .market-item button')).toHaveText('Unterwegs');
+  await page.locator('#st-pc .menu button[data-t="decor"]').click();
+  await page.locator('#st-pc [data-decor-buy="plant"]').click();
+  await expect(page.locator('#st-pc [data-decor-buy="plant"]')).toHaveText('Eingebaut');
+  await page.locator('#tabs button[data-t="shop"]').click();
+  await expect(page.locator('#shop-world')).toHaveAttribute('data-decor', /plant/);
   expect(pageErrors, 'Uncaught JavaScript errors in shop, dialogue and web store').toEqual([]);
 });

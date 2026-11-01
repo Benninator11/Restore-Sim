@@ -158,7 +158,7 @@ function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeou
 function save(){try{localStorage.setItem('kuroneko_v1',JSON.stringify(S))}catch(e){}}
 function load(){try{const j=localStorage.getItem('kuroneko_v1');if(j){const o=JSON.parse(j);if(o&&o.day)return o}}catch(e){}return null}
 function newGame(){
-  S={day:1,money:20000,rep:50,rent:RENT,flags:{},jobs:[],inv:{},orders:[],queue:[],qi:0,mail:[],log:[],phase:'day',stats:{done:0,earned:0},nid:1};
+  S={day:1,money:20000,rep:50,rent:RENT,flags:{},jobs:[],inv:{},orders:[],queue:[],qi:0,mail:[],log:[],phase:'day',stats:{done:0,earned:0},decor:{},nid:1};
   startDay();
 }
 function applyFx(fx,job){
@@ -265,7 +265,7 @@ function renderShop(){
       <div class="shop-world-brand"><span class="shop-world-mark">K</span><div><strong>KURONEKO REPAIR</strong><small>Electronic Service · Tokyo 2005</small></div></div>
       <div class="shop-world-stats"><span>TAG <b>${S.day}</b></span><span>KASSE <b>${yen(S.money)}</b></span><span>RUF <b>${S.rep}</b></span></div>
     </div>
-    <div class="shop-world" id="shop-world">
+    <div class="shop-world" id="shop-world" data-decor="${Object.keys(S.decor||{}).filter(k=>S.decor[k]).join(',')}">
       <div class="shop-world-loading"><span>黒猫修理</span><small>Reparaturladen wird vorbereitet …</small></div>
       <div class="shop-world-title"><b>Kuroneko Electronics</b><span>${it?(isBusy?'KUNDENGESPRÄCH':'KUNDE WARTET'):'SHOP · FREIE ZEIT'}</span></div>
       <div class="shop-crosshair" aria-hidden="true"></div>
@@ -298,7 +298,7 @@ function renderShop(){
   if($('#greet'))$('#greet').onclick=()=>{sfx(520,.1);startItem()};
   if($('#endday'))$('#endday').onclick=()=>{sfx(330,.15);endDayDialog()};
   if(window.KuronekoShop3D){
-    const ok=window.KuronekoShop3D.mount($('#shop-world'),{hasCustomer:!!it,customerName:name,day:S.day,money:S.money,rep:S.rep});
+    const ok=window.KuronekoShop3D.mount($('#shop-world'),{hasCustomer:!!it,customerName:name,day:S.day,money:S.money,rep:S.rep,decor:S.decor||{}});
     const loading=$('.shop-world-loading');if(loading)loading.remove();
     if(!ok&&!$('#shop-world .shop-world-fallback'))$('#shop-world').insertAdjacentHTML('afterbegin','<div class="shop-world-fallback"><b>Kuroneko Repair</b><p>3D ist in diesem Browser nicht verfügbar. Nutze die Schnellaktionen rechts.</p></div>');
   }
@@ -895,6 +895,12 @@ function deviceSvg(j,clean){
 }
 /* ===== PC / Y2K-BROWSER ===== */
 let pcTab='shop',pcFilter='all',pcSearch='';
+const DECOR_ITEMS=[
+  {id:'plant',name:'Zimmerpflanze',desc:'Eine kleine Grünpflanze für die Ecke am Fenster.',price:1800,icon:'🌿'},
+  {id:'chair',name:'Kundenstuhl',desc:'Ein bequemer Stuhl neben dem Tresen.',price:3200,icon:'🪑'},
+  {id:'neon',name:'Neon-Schild',desc:'Ein warm leuchtender Akzent über dem Ladenschild.',price:5400,icon:'💡'},
+  {id:'shelf',name:'Ersatzteilregal',desc:'Mehr Ordnung und zusätzliche Teileboxen.',price:6800,icon:'🗄️'}
+];
 function normalizeSearch(v){return String(v||'').toLocaleLowerCase('de').replace(/ß/g,'ss').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();}
 function editDistance(a,b){
   if(Math.abs(a.length-b.length)>2)return 3;
@@ -915,7 +921,7 @@ function smartShopMatch(query,haystack){
 function renderPC(){
   const el=$('#st-pc');
   const open=S.mail.filter(m=>m.state==='open').length;
-  const tabs=[['web','Internet'],['shop','Akiba-Parts'],['market','Neko-Auktion'],['mail','Posteingang'+(open?' ('+open+')':'')],['book','Kassenbuch']];
+  const tabs=[['web','Internet'],['shop','Akiba-Parts'],['market','Gebrauchtmarkt'],['decor','Ladenausbau'],['mail','Posteingang'+(open?' ('+open+')':'')],['book','Kassenbuch']];
   let page='';
   if(pcTab==='web'){
     page=`<div class='net-home'>
@@ -924,7 +930,7 @@ function renderPC(){
       <h3>Deine Lesezeichen</h3>
       <div class='net-sites'>
         <button type='button' class='net-site' data-net='shop'><span>🧰</span><b>Akiba-Parts</b><small>Neue Ersatzteile direkt bestellen</small></button>
-        <button type='button' class='net-site' data-net='market'><span>📦</span><b>Neko-Auktion</b><small>Geprüfte Gebrauchtteile günstiger finden</small></button>
+        <button type='button' class='net-site' data-net='market'><span>📦</span><b>Neko-Gebrauchtmarkt</b><small>Geprüfte Gebrauchtteile günstiger finden</small></button>
         <button type='button' class='net-site' data-net='mail'><span>✉️</span><b>Postfach</b><small>${open} offene Reparaturanfragen</small></button>
         <button type='button' class='net-site' data-net='book'><span>📒</span><b>Kassenbuch</b><small>Umsatz, Miete und Werkstattbilanz</small></button>
       </div>
@@ -948,7 +954,7 @@ function renderPC(){
       }
     });
     const rows=offers.map(o=>'<div class="market-item"><div class="market-icon">'+(o.kind==='Mikrochip'?'▦':o.kind==='SMD-Bauteil'?'▪':'▰')+'</div><div class="market-info"><b>'+o.label+'</b><small>'+DEV[o.dev].name+' · '+o.kind+' · geprüft</small><small class="market-condition">Zustand: Sehr gut · 1 Stück verfügbar</small></div><div class="market-buy"><strong>'+yen(o.price)+'</strong><button class="buy" data-market-k="'+o.key+'" data-market-p="'+o.price+'" '+(S.money<o.price||o.pending?'disabled':'')+'>'+(o.pending?'Unterwegs':'Kaufen')+'</button></div></div>').join('');
-    page='<div class="net-market"><div class="net-market-head"><div><small>NEKO-AUKTION · GEBRAUCHTTEILE</small><h3>Gute Teile. Kleine Preise.</h3><p>Von Werkstätten geprüft und für deine Reparaturen vorbereitet.</p></div><span class="market-stamp">AKI<br>BA</span></div><div class="market-banner">★ TAGESANGEBOTE ★ Versand am nächsten Morgen ★ Nur solange der Vorrat reicht ★</div>'+(offers.length?'<div class="market-list">'+rows+'</div>':'<p class="net-empty">Zurzeit gibt es keine passenden Angebote. Nimm zuerst einen Auftrag an oder prüfe später wieder.</p>')+'<div class="net-footer">Neko-Auktion · Käuferschutz für Werkstätten · Lieferung dauert einen Spieltag</div></div>';
+    page='<div class="net-market"><div class="net-market-head"><div><small>NEKO-GEBRAUCHTMARKT · GEBRAUCHTTEILE</small><h3>Gute Teile. Kleine Preise.</h3><p>Von Werkstätten geprüft und für deine Reparaturen vorbereitet.</p></div><span class="market-stamp">AKI<br>BA</span></div><div class="market-banner">★ TAGESANGEBOTE ★ Versand am nächsten Morgen ★ Nur solange der Vorrat reicht ★</div>'+(offers.length?'<div class="market-list">'+rows+'</div>':'<p class="net-empty">Zurzeit gibt es keine passenden Angebote. Nimm zuerst einen Auftrag an oder prüfe später wieder.</p>')+'<div class="net-footer">Neko-Gebrauchtmarkt · Werkstatt-Schutz für Werkstätten · Lieferung dauert einen Spieltag</div></div>';
   } else if(pcTab==='shop'){
     const types=Object.keys(DEV);
     const products=[];
@@ -973,12 +979,28 @@ function renderPC(){
     page=`<h3 style="margin:0 0 8px">Posteingang</h3>`+(S.mail.length?S.mail.slice().reverse().map(m=>{
       const d=DEV[m.dev],pt=d.parts.find(p=>p.id===m.fault);
       return `<div style="border:1px solid #999;padding:6px;margin-bottom:6px"><b>${m.from}</b> (Tag ${m.day})<br>Betreff: Reparaturanfrage ${d.name}<br>"Mein Gerät: ${SYMPTOM[m.fault]}. Ich zahle ${yen(m.fee)} und schicke es per Post."<br>${m.state==='open'?`<button class="buy" data-a="${m.id}">Annehmen</button> <button class="buy" data-d="${m.id}">Ablehnen</button>`:`<i>${m.state==='accepted'?'angenommen':m.state==='declined'?'abgelehnt':'verfallen'}</i>`}</div>`}).join(''):'<p>Keine Nachrichten.</p>');
+  } else if(pcTab==='decor'){
+    S.decor=S.decor||{};
+    const decorRows=DECOR_ITEMS.map(item=>{
+      const owned=!!S.decor[item.id];
+      return '<div class="decor-item"><div class="decor-icon">'+item.icon+'</div><div class="decor-copy"><b>'+item.name+'</b><small>'+item.desc+'</small><strong>'+yen(item.price)+'</strong></div><button class="buy" data-decor-buy="'+item.id+'" '+(owned?'disabled':'')+'>'+(owned?'Eingebaut':'Kaufen')+'</button></div>';
+    }).join('');
+    page='<div class="decor-shop"><div class="decor-heading"><div><small>WERKSTATT · AUSBAU</small><h3>Mach den Laden zu deinem Ort</h3><p>Neue Möbel und Details werden direkt in deiner 3D-Werkstatt sichtbar.</p></div><div class="decor-cash">Kasse<br><b>'+yen(S.money)+'</b></div></div>'+decorRows+'</div>';
   } else {
     page=`<h3 style="margin:0 0 8px">Kassenbuch</h3><table><tr><th>Posten</th><th>Betrag</th></tr><tr><td>Kasse</td><td>${yen(S.money)}</td></tr><tr><td>Miete & Strom (pro Tag)</td><td>${yen(S.rent)}</td></tr><tr><td>Verdient insgesamt</td><td>${yen(S.stats.earned)}</td></tr><tr><td>Repariert</td><td>${S.stats.done}</td></tr><tr><td>Ruf im Viertel</td><td>${S.rep}/100</td></tr></table><p>Tipp: Bestelle Teile am Vortag, sie kommen morgens an. Saubere Geräte bringen mehr Geld.</p>`;
   }
   el.innerHTML=`<div class="crt"><div class="win"><div class="title"><span>Tokyo-Net Explorer 6.0 - ${tabs.find(t=>t[0]===pcTab)[1]}</span><span>_ □ ✕</span></div><div class="menu">${tabs.map(t=>`<button data-t="${t[0]}" aria-selected="${pcTab===t[0]}">${t[1]}</button>`).join('')}</div><div class="page">${page}</div></div></div>`;
   el.querySelectorAll('.menu button').forEach(b=>b.onclick=()=>{pcTab=b.dataset.t;sfx(600,.04);renderPC()});
   el.querySelectorAll('[data-net]').forEach(b=>b.onclick=()=>{pcTab=b.dataset.net;sfx(650,.04);renderPC()});
+  el.querySelectorAll('[data-decor-buy]').forEach(b=>b.onclick=()=>{
+    const item=DECOR_ITEMS.find(x=>x.id===b.dataset.decorBuy);
+    if(!item)return;
+    S.decor=S.decor||{};
+    if(S.decor[item.id])return;
+    if(S.money<item.price){toast('Dafür reicht das Geld noch nicht.');return}
+    S.money-=item.price;S.decor[item.id]=true;
+    toast(item.name+' wurde eingebaut.');sfx(780,.12,'triangle');save();renderHud();renderPC();
+  });
   el.querySelectorAll('[data-market-k]').forEach(b=>b.onclick=()=>{
     const pr=+b.dataset.marketP,key=b.dataset.marketK;
     if(S.money<pr||S.orders.some(o=>o.key===key))return;
@@ -1377,6 +1399,7 @@ testDevice=function(j,clean){
 (function boot(){
   const s=load();
   if(s){S=s;S.nid=S.nid||100;if(S.phase==='end'){newGame()}}else newGame();
+  S.decor=S.decor||{};
   Object.assign(NODES,S.fn||{});
   S.jobs.forEach(j=>{if(j.st&&j.st.dirt==null)j.st=null;if(j.st){if(j.st.flipped===undefined)j.st.flipped=false;if(!j.st.mistakes)j.st.mistakes=[];if(j.st.closing===undefined)j.st.closing=false;}});
   go('shop');

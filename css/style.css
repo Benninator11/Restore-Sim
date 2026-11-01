@@ -560,3 +560,14 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 .market-buy{display:flex;align-items:flex-end;flex-direction:column;gap:4px}.market-buy strong{font-size:12px;color:#3c473f}
 .net-empty{padding:18px;background:#f5f1e5;border:1px dashed #a79d89;text-align:center;color:#696252}
 @media(max-width:650px){.net-sites{grid-template-columns:1fr}.net-banner b{font-size:17px}.market-item{grid-template-columns:36px minmax(0,1fr) auto;gap:6px;padding:7px}.market-icon{width:34px;height:34px}.market-buy .buy{font-size:11px;padding:2px 6px}}
+
+/* Shop decoration catalogue */
+.decor-shop{max-width:900px;margin:0 auto;color:#1d2224}
+.decor-heading{display:flex;justify-content:space-between;gap:12px;padding:14px;background:linear-gradient(110deg,#344b55,#61746e);color:#f4ead7}
+.decor-heading small{font-size:10px;letter-spacing:.14em;color:#e3c28b}.decor-heading h3{margin:4px 0;color:#fff;font: bold 22px Georgia,serif}.decor-heading p{margin:0;color:#dce3dc;font-size:12px}
+.decor-cash{align-self:center;flex:none;padding:8px 12px;border:1px solid #e5c88e;color:#f2debb;text-align:center;font-size:11px}.decor-cash b{font-size:15px}
+.decor-item{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:center;margin-top:7px;padding:9px;background:linear-gradient(110deg,#fbf7e9,#e5ddc8);border:1px solid #b8ad94}
+.decor-icon{display:grid;place-items:center;width:44px;height:44px;border:1px solid #a89c82;background:#d3c8ad;font-size:25px}
+.decor-copy b{display:block;color:#29302d;font-size:13px}.decor-copy small{display:block;color:#73736a;font-size:11px}.decor-copy strong{display:block;margin-top:3px;color:#4f604e;font-size:11px}
+.decor-item .buy{min-width:88px}.decor-item .buy:disabled{opacity:.7;color:#385a45}
+@media(max-width:600px){.decor-item{grid-template-columns:40px minmax(0,1fr) auto;gap:7px;padding:7px}.decor-icon{width:38px;height:38px}.decor-item .buy{min-width:72px;font-size:11px;padding:3px 6px}.decor-heading h3{font-size:18px}}

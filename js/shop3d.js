@@ -70,6 +70,39 @@ function build(scene,targets,cfg){
   o.position.set(p.x,2.8,-2.4);o.rotation.y=p.rot;scene.add(o);
  }
  for(const x of [-2.4,0,2.5]){const light=new T.PointLight('#ffe1b5',.65,6);light.position.set(x,3.82,-2.1);scene.add(light)}
+ const decor=cfg.decor||{};
+ if(decor.plant){
+  const pot=mat('#b66e50'),soil=mat('#3d3026'),leaves=mat('#4d8957'),leafLight=mat('#78a96c');
+  box(scene,-4.12,.31,-4.72,.5,.56,.48,pot);box(scene,-4.12,.6,-4.72,.43,.07,.41,soil);
+  box(scene,-4.12,.88,-4.72,.07,.58,.07,mat('#65503a'));
+  sphere(scene,-4.35,1.08,-4.72,.27,leaves);sphere(scene,-3.91,1.12,-4.72,.28,leafLight);
+  sphere(scene,-4.13,1.32,-4.7,.3,leaves);sphere(scene,-4.15,1.03,-4.42,.23,leafLight);
+ }
+ if(decor.chair){
+  const seat=mat('#9c6847'),chairDark=mat('#4c3c32');
+  box(scene,2.25,.82,-3.65,.72,.13,.68,seat);
+  box(scene,2.25,1.25,-3.98,.72,.78,.12,seat);
+  for(const x of [1.95,2.55])for(const z of [-3.9,-3.4])box(scene,x,.4,z,.08,.8,.08,chairDark);
+  box(scene,1.86,1.03,-3.65,.12,.52,.12,chairDark);
+  box(scene,2.64,1.03,-3.65,.12,.52,.12,chairDark);
+ }
+ if(decor.neon){
+  const glowMat=new T.MeshStandardMaterial({color:'#eaa2b5',emissive:'#d94876',emissiveIntensity:1.7,roughness:.35});
+  box(scene,-1.72,4.18,-5.52,.09,.16,.08,glowMat);
+  box(scene,1.72,4.18,-5.52,.09,.16,.08,glowMat);
+  box(scene,0,4.25,-5.52,3.5,.07,.08,glowMat);
+  const light=new T.PointLight('#f08aaa',.85,5);light.position.set(0,4.18,-5.15);scene.add(light);
+ }
+ if(decor.shelf){
+  const frame=mat('#59483b'),boxA=mat('#c58e62'),boxB=mat('#8ca6a1');
+  box(scene,-3.72,2.1,-5.55,1.95,2.2,.22,frame);
+  for(const y of [1.45,2.15,2.85])box(scene,-3.72,y,-5.31,1.84,.08,.5,wood);
+  for(let i=0;i<6;i++){
+   const x=-4.43+(i%3)*.7,y=1.7+Math.floor(i/3)*.7;
+   box(scene,x,y,-5.28,.46,.38,.3,i%2?boxA:boxB);
+   box(scene,x,y,-5.1,.2,.09,.015,cream);
+  }
+ }
  const customer=cfg.hasCustomer?npc(scene,cfg.customerName):null;
  targets.push(
   makeTarget(scene,'customer','Kundschaft begrüßen',0,1.45,-2.85,2.2,1.9,1.45),
