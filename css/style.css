@@ -1,0 +1,274 @@
+
+/* Layout: Tokio-Nacht, ein Laden-Fenster mit HUD oben, Reiter (Laden/Werkbank/PC/Aufträge) und einer Bühne. */
+:root{
+  --night:#17142b;      /* Nachtblau */
+  --wall:#232046;       /* Ladenwand */
+  --panel:#2d2958;      /* Fenster */
+  --line:#4a4590;
+  --mint:#7fe0c8;       /* Platine / ok */
+  --pink:#ff6b9a;       /* Akzent Neon */
+  --lemon:#ffe27a;      /* Geld */
+  --ink:#f3efff;
+  --mute:#a9a3d6;
+  --bad:#ff5a5a;
+  --f-display:'DotGothic16','Zen Maru Gothic',monospace;
+  --f-body:'Zen Maru Gothic','Hiragino Sans',system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:auto}
+body{background:var(--night);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5;
+  padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background-image:radial-gradient(circle at 20% 0%,#2f2a6b55,transparent 50%),radial-gradient(circle at 90% 100%,#ff6b9a22,transparent 45%)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--lemon);outline-offset:2px}
+#app{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.04em}
+.hud{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:8px 12px}
+.hud .logo{font-family:var(--f-display);font-size:20px;color:var(--pink);margin-right:auto;text-shadow:2px 2px 0 #0006}
+.hud .stat{font-family:var(--f-display);font-size:15px;white-space:nowrap}
+.hud .stat b{color:var(--lemon);font-weight:400}
+.hud button{background:transparent;border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:13px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{flex:1 1 90px;font-family:var(--f-display);font-size:15px;background:var(--wall);border:2px solid var(--line);border-bottom-width:4px;border-radius:6px;padding:7px 8px}
+.tabs button[aria-selected="true"]{background:var(--pink);color:#2a0a18;border-color:#ffb0cb}
+.tabs .badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--lemon);color:#2a2400;font-size:12px}
+.stage{background:var(--wall);border:2px solid var(--line);border-radius:6px;padding:12px;min-height:420px}
+.stage[hidden]{display:none}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.col{flex:1 1 300px;min-width:0}
+.btn{background:var(--mint);color:#06281f;border:2px solid #c6fff0;border-bottom-width:4px;border-radius:6px;padding:6px 12px;font-family:var(--f-display);font-size:15px}
+.btn.alt{background:var(--panel);color:var(--ink);border-color:var(--line)}
+.btn.pink{background:var(--pink);color:#2a0a18;border-color:#ffb0cb}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:active:not(:disabled){transform:translateY(2px);border-bottom-width:2px}
+.card{background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:10px 12px}
+.muted{color:var(--mute)}
+.lemon{color:var(--lemon)}
+.tag{display:inline-block;font-family:var(--f-display);font-size:12px;padding:1px 7px;border-radius:3px;background:#0005;border:1px solid var(--line);margin-right:4px}
+/* Laden */
+.shopscene{position:relative;border:2px solid var(--line);border-radius:6px;overflow:hidden;background:linear-gradient(#2b2760,#1d1a3f 60%,#3b2f2a 60%,#2a201c);min-height:230px;padding:14px;display:flex;align-items:flex-end;justify-content:center;gap:20px}
+.shopscene .neon{position:absolute;top:10px;left:14px;font-family:var(--f-display);font-size:22px;color:var(--pink);text-shadow:0 0 10px var(--pink),0 0 22px #ff6b9a88}
+.shopscene .counter{position:absolute;left:0;right:0;bottom:0;height:52px;background:#5b4033;border-top:4px solid #7a5846}
+.cust{position:relative;z-index:2;width:120px;text-align:center;font-family:var(--f-display);font-size:12px;color:var(--mute)}
+.cust svg{width:110px;height:150px}
+.dialog{background:#0b0920ee;border:2px solid var(--lemon);border-radius:6px;padding:12px 14px;margin-top:10px}
+.dialog .who{font-family:var(--f-display);color:var(--lemon);margin-bottom:4px}
+.dialog p{margin:0 0 10px;min-height:3em}
+.choices{display:flex;flex-direction:column;gap:6px}
+.choices .btn{text-align:left}
+/* Werkbank */
+.bench{display:grid;grid-template-columns:150px 1fr;gap:10px}
+@media(max-width:640px){.bench{grid-template-columns:1fr}}
+.tools{display:flex;flex-direction:row;flex-wrap:wrap;gap:6px;align-content:flex-start}
+@media(min-width:641px){.tools{flex-direction:column;flex-wrap:nowrap}}
+.tools button{background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:6px 8px;text-align:left;font-size:13px;flex:1 1 auto}
+.tools button[aria-pressed="true"]{border-color:var(--lemon);background:#3e3a78;box-shadow:0 0 0 2px #ffe27a55}
+.tools small{display:block;color:var(--mute);font-size:11px}
+.table{background:#3a2b25;border:3px solid #5b4033;border-radius:8px;padding:6px;position:relative;touch-action:none;user-select:none}
+.table svg{width:100%;height:auto;max-height:520px;display:block}
+.hint{font-size:13px;color:var(--mint);min-height:1.5em;margin:6px 2px}
+.prog{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.prog span{font-family:var(--f-display);font-size:12px;padding:2px 7px;border:1px solid var(--line);border-radius:3px;color:var(--mute)}
+.prog span.on{color:#06281f;background:var(--mint);border-color:var(--mint)}
+/* PC / Browser */
+.crt{background:#c9c3b6;border:3px solid #8b857a;border-radius:10px;padding:8px;color:#111}
+.win{background:#fff;border:2px solid #000;color:#111;font-family:Arial,Helvetica,sans-serif;font-size:14px}
+.win .title{background:linear-gradient(90deg,#000080,#1084d0);color:#fff;padding:3px 8px;font-weight:700;display:flex;justify-content:space-between}
+.win .menu{background:#d4d0c8;padding:3px 6px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #808080}
+.win .menu button{background:#d4d0c8;border:2px outset #fff;color:#000;padding:1px 10px;font-family:Arial,sans-serif;font-size:13px}
+.win .menu button[aria-selected="true"]{border-style:inset;background:#bdb9b0}
+.win .page{padding:10px;min-height:300px;background:#fff;color:#111}
+.win a,.win .lnk{color:#00e;text-decoration:underline;cursor:pointer}
+.win table{border-collapse:collapse;width:100%}
+.win th,.win td{border:1px solid #999;padding:4px 6px;text-align:left}
+.win th{background:#ffffa0}
+.win .marq{background:#ff0;border:1px dashed #f00;padding:3px;font-weight:700;color:#c00;margin-bottom:8px}
+.win button.buy{background:#ffcf00;border:2px outset #fff;color:#000;font-weight:700;cursor:pointer;padding:1px 8px}
+.win button.buy:disabled{opacity:.4}
+.scroll{overflow-x:auto}
+/* Overlay */
+.ov{position:fixed;inset:0;background:#07051bcc;display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+.ov[hidden]{display:none}
+.ov .box{background:var(--panel);border:3px solid var(--pink);border-radius:8px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:16px}
+.ov .box h2{color:var(--pink);margin-bottom:8px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));background:#000d;border:2px solid var(--lemon);color:var(--lemon);font-family:var(--f-display);padding:6px 14px;border-radius:6px;z-index:60;max-width:90vw;text-align:center}
+.toast[hidden]{display:none}
+.jobs{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.jobs .card h3{font-size:16px}
+.bar{height:8px;background:#0006;border-radius:4px;overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;background:var(--mint)}
+@media (prefers-reduced-motion:no-preference){.neon{animation:fl 4s infinite}@keyframes fl{0%,92%,100%{opacity:1}94%{opacity:.5}96%{opacity:1}98%{opacity:.6}}}
+
+
+.workstation{background:linear-gradient(145deg,#211b2b,#171322);border:2px solid #67553f;border-radius:9px;padding:9px;box-shadow:inset 0 1px 0 #fff2,0 9px 18px #0008}
+.bench-gear{display:flex;align-items:center;justify-content:space-between;gap:7px;flex-wrap:wrap;padding:7px 9px;background:linear-gradient(180deg,#454b59,#242936);border:1px solid #737b87;border-bottom:4px solid #171b24;border-radius:6px 6px 2px 2px;color:#e0e4eb;font:10px var(--f-display);letter-spacing:.08em}
+.bench-gear span{display:inline-flex;align-items:center;gap:6px}
+.work-lamp i{display:inline-block;width:22px;height:9px;border-radius:8px 8px 3px 3px;background:linear-gradient(#fff6c5,#d7b76c);box-shadow:0 0 12px #ffe7a077;transform:rotate(-10deg)}
+.esd-chip{color:#9fead8}.bench-clock{color:#f4dca3}
+.bench-drawer{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:8px}
+.bench-well{min-height:43px;border:1px solid #82684e;border-radius:5px;background:linear-gradient(145deg,#6a5140,#30251f);box-shadow:inset 0 2px 5px #0009,0 1px 0 #fff2;padding:6px;color:#e5cfad;font:10px var(--f-display);text-align:center}
+.bench-well b{display:block;color:#ffe6b3;font-size:11px;font-weight:400}
+.bench-well .screws{font-size:12px;letter-spacing:3px;color:#c6ced7;text-shadow:0 1px 2px #000}
+.bench-well .chemical{color:#b9e5e0}
+.chip-log{margin-top:8px;padding:8px 10px;border:1px solid #5d765f;border-radius:6px;background:linear-gradient(145deg,#14281f,#101b1a);color:#c8f2d8;font:12px var(--f-body)}
+.chip-log b{display:block;color:#9feac5;font:12px var(--f-display);margin-bottom:5px}
+.chip-log-list{display:flex;gap:5px;flex-wrap:wrap}
+.chip-log-list span{padding:3px 6px;border-radius:4px;background:#253d32;border:1px solid #476b56}
+.chip-log-list .bad{color:#ffc0bb;background:#462528;border-color:#8a4a4a}
+@media(max-width:640px){.bench-drawer{grid-template-columns:1fr 1fr}.bench-gear{font-size:9px}}
+
+/* Werkbank-Upgrade: echte Arbeitsfläche, Werkzeug- und Gerätebewegungen */
+.table{min-height:330px;display:flex;align-items:center;justify-content:center;isolation:isolate;
+  background-image:radial-gradient(ellipse at 50% 48%,#80634a55,transparent 68%),repeating-linear-gradient(0deg,#ffffff08 0 1px,transparent 1px 7px),var(--wood),#3a2b25!important}
+.table:before{content:"";position:absolute;inset:8px;border:1px solid #d8b89955;border-radius:5px;pointer-events:none;box-shadow:inset 0 0 18px #0008;z-index:-1}
+.table:after{content:"KURONEKO  ·  ESD REPAIR MAT";position:absolute;right:13px;bottom:8px;color:#e3c7a0a0;font:10px var(--f-display);letter-spacing:.12em;pointer-events:none}
+.table svg{width:min(100%,780px);max-width:100%;height:auto;max-height:760px;display:block;margin:auto;overflow:visible}
+.tools button{display:flex;align-items:center;gap:8px;min-height:49px;transition:transform .16s,border-color .16s,background .16s}
+.tools button:hover{transform:translateX(2px);border-color:#8e86d0}
+.tool-icon{display:inline-flex;align-items:center;justify-content:center;min-width:29px;height:29px;border-radius:6px;background:#161329;border:1px solid #5d568e;font-size:18px}
+.tools button[aria-pressed="true"] .tool-icon{animation:toolIdle 1.5s ease-in-out infinite;box-shadow:0 0 12px #ffe27a55}
+@keyframes toolIdle{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(4deg) translateY(-2px)}}
+#dsv{transition:filter .2s,transform .35s;transform-origin:center;filter:drop-shadow(0 12px 14px #000b)}
+#dsv .pt{transform-box:fill-box;transform-origin:center;transition:filter .15s,transform .15s}
+#dsv .pt:hover{filter:brightness(1.25);transform:scale(1.025)}
+#dsv .sc{transition:transform .12s}
+#dsv .sc:active{transform:scale(.8)}
+#tbl.tool-driver #dsv .sc{animation:screwPulse .28s ease}
+#tbl.tool-solder #dsv .pt{animation:solderPulse .5s ease}
+#tbl.tool-meter #dsv .pt{animation:meterPulse .45s ease}
+#tbl.tool-chiptest #dsv .micro-chip{animation:chipScan .55s ease}
+#tbl.tool-solder #dsv .micro-chip{animation:solderPulse .5s ease}
+#dsv .micro-chip{cursor:pointer;transform-box:fill-box;transform-origin:center;transition:filter .15s,transform .15s}
+#dsv .micro-chip:hover{filter:brightness(1.5);transform:scale(1.12)}
+#dsv .micro-chip .micro-hit{fill:transparent;stroke:transparent;stroke-width:1}
+@keyframes chipScan{0%{filter:drop-shadow(0 0 0 #7fe0c8)}50%{filter:drop-shadow(0 0 9px #7fe0c8)}100%{filter:drop-shadow(0 0 0 #7fe0c8)}}
+#tbl.tool-brush #dsv .dirt,#tbl.tool-cloth #dsv .dirt{animation:cleanPulse .25s ease}
+#tbl.tool-tweezers #dsv .pt{animation:tweezerPulse .35s ease}
+#tbl.tool-hand #dsv{animation:flipDevice .48s ease}
+@keyframes screwPulse{50%{filter:brightness(1.7);transform:rotate(8deg)}}
+@keyframes solderPulse{50%{filter:drop-shadow(0 0 8px #ff9b46);transform:scale(1.035)}}
+@keyframes meterPulse{50%{filter:drop-shadow(0 0 10px #7fe0c8);transform:scale(1.02)}}
+@keyframes cleanPulse{50%{opacity:.35}}
+@keyframes tweezerPulse{50%{transform:translateY(-3px) scale(1.03)}}
+@keyframes flipDevice{0%{transform:rotate(0) scale(1)}45%{transform:rotateY(80deg) scale(.92)}100%{transform:rotateY(0) scale(1)}}
+.device-front{filter:drop-shadow(0 14px 16px #000b)}
+.front-screen{fill:url(#glass);stroke:#080b13;stroke-width:5}
+.demo-shell{background:linear-gradient(145deg,#17142b,#302b5c);border:2px solid var(--line);border-radius:9px;padding:14px;margin-top:10px}
+.demo-screen{background:#0b1422;border:3px solid #7d8793;border-radius:7px;min-height:120px;padding:12px;color:#b8f8dc;font-family:var(--f-display);box-shadow:inset 0 0 24px #000}
+.demo-controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.demo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;max-width:250px;margin:12px auto}
+.demo-grid button{height:54px;border:2px solid #625b9a;border-radius:7px;background:#25204a;font-size:21px}
+.demo-grid button.target{background:#7fe0c8;color:#06281f;box-shadow:0 0 15px #7fe0c8}
+.btn:disabled{opacity:.45}
+@media(max-width:640px){.table{min-height:250px;padding:5px}.tools button{min-width:145px}.table:after{font-size:8px}}
+@media(prefers-reduced-motion:reduce){.tools button[aria-pressed="true"] .tool-icon,#dsv .pt,#dsv .sc,#dsv{animation:none!important;transition:none!important}}
+
+/* ChipLab 3D workshop extension */
+#app{max-width:1400px}
+.bench{grid-template-columns:165px minmax(0,1fr);gap:14px}
+.workstation{background:linear-gradient(145deg,#292633,#17151f 55%,#30241e);box-shadow:inset 0 2px 0 #ffffff18,0 16px 28px #0009}
+.table{min-height:440px;overflow:auto;background:radial-gradient(ellipse at 50% 45%,#496b5b 0,#315444 54%,#1e352e 100%);border:8px solid #765b42;box-shadow:inset 0 0 0 3px #b18b5f,inset 0 0 30px #091b15,0 7px 0 #39281e;perspective:1400px}
+.table:before{content:'ESD · 10^6Ω · KURONEKO REPAIR';position:absolute;left:12px;bottom:8px;color:#d0ddcf88;font:10px monospace;letter-spacing:.16em;pointer-events:none;z-index:2}
+.table svg{width:min(100%,820px);max-height:780px;transform-style:preserve-3d;transform-origin:center;filter:drop-shadow(0 18px 15px #0009);transition:filter .2s}
+.table svg.is-dragging{transition:none;cursor:grabbing}
+.table svg.board-view{width:min(100%,900px);filter:drop-shadow(0 24px 17px #000b)}
+.table svg.microscope-view{filter:drop-shadow(0 25px 18px #000d) brightness(1.06)}
+#dsv .part-pin,#dsv .micro-pin{cursor:crosshair}
+#dsv .micro-chip.magnified{transform:scale(1.7);filter:drop-shadow(0 0 7px #ffe27a);transform-box:fill-box;transform-origin:center}
+#dsv .pin-hit{fill:transparent;stroke:transparent;pointer-events:all}
+#dsv .part-pin:hover .pin-hit,#dsv .micro-pin:hover .pin-hit{stroke:#fff7;stroke-width:1}
+#dsv .part-pin .pin-metal,#dsv .micro-pin .pin-metal{filter:drop-shadow(0 1px 1px #0009)}
+#dsv .sc.holding{filter:drop-shadow(0 0 8px #ffe27a);animation:screwHoldGlow 3s linear}
+#dsv .sc.holding circle:first-child{stroke:#ffe27a;stroke-width:2.5;stroke-dasharray:50;animation:screwRing 3s linear}
+@keyframes screwRing{from{stroke-dashoffset:50}to{stroke-dashoffset:0}}
+@keyframes screwHoldGlow{0%{opacity:.7}50%{opacity:1}100%{opacity:1}}
+@keyframes boardLift{0%{transform:translateY(0) rotateX(0)}55%{transform:translateY(-18px) rotateX(7deg)}100%{transform:translateY(0) rotateX(0)}}
+#dsv.board-view{animation:boardLift .5s ease-out}
+.bench-extra{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(190px,.8fr);gap:10px;margin-top:10px}
+.mat-panel{border:1px solid #7b806d;border-radius:7px;padding:10px;background:linear-gradient(145deg,#536a59,#2b4035);box-shadow:inset 0 1px 0 #ffffff30}
+.mat-panel h3,.trash-panel h3{font-size:14px;color:#e3ebdb;margin-bottom:6px}
+.mat-surface{min-height:82px;border:2px solid #92a68c;border-radius:5px;padding:8px;background-color:#617a67;background-image:linear-gradient(0deg,#ffffff10 1px,transparent 1px),linear-gradient(90deg,#ffffff10 1px,transparent 1px);background-size:16px 16px;display:flex;gap:7px;flex-wrap:wrap;align-content:flex-start}
+.mat-part{display:flex;align-items:center;gap:5px;border:1px solid #d1c9a8;border-radius:4px;background:linear-gradient(#e5e1d5,#b9b5a8);color:#24262c;padding:4px 6px;font:11px var(--f-display);box-shadow:0 3px 0 #5b5b50;cursor:grab;max-width:100%}
+.mat-part.selected{outline:3px solid #ffe27a;transform:translateY(-2px)}
+.mat-part button{border:0;border-radius:3px;background:#3a2525;color:#fff;padding:2px 5px;font-size:12px}
+.mat-empty{color:#d8e2d4aa;font-size:12px;align-self:center}
+.trash-panel{border:1px solid #8a5b5b;border-radius:7px;padding:10px;background:linear-gradient(145deg,#574044,#30242a);box-shadow:inset 0 1px 0 #ffffff20}
+.trash-bin{width:100%;min-height:82px;border:2px dashed #c98c8c;border-radius:6px;background:linear-gradient(#6b3c43,#38242a);color:#ffe4e4;font:13px var(--f-display);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px}
+.trash-bin.drag-over{background:#8e4f54;box-shadow:0 0 0 3px #ffb0b055}
+.trash-count{font-size:11px;color:#eab9b9}
+.bench-status-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.bench-status-row .tag{padding:4px 9px}
+.bench-controls{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.bench-controls button{font-size:13px}
+.tools button:disabled{opacity:.48;filter:grayscale(.75);cursor:not-allowed;transform:none}
+.tools button .unlock-label{display:block;color:#ffe27a;font-size:10px}
+@media(max-width:850px){.bench{grid-template-columns:1fr}.tools{flex-direction:row;flex-wrap:wrap}.tools button{min-width:150px}.bench-extra{grid-template-columns:1fr}.table{min-height:300px}}
+@media(prefers-reduced-motion:reduce){#dsv.board-view,#dsv .sc.holding{animation:none!important}}
+
+
+
+/* Kuroneko Repair · kompakte, zentrierte Werkbank */
+#app{max-width:1280px}
+.bench{grid-template-columns:154px minmax(0,1fr);gap:12px}
+.workstation{padding:10px;background:linear-gradient(145deg,#302c38 0%,#1b1a25 58%,#31261f 100%);border:1px solid #796b61;box-shadow:inset 0 1px 0 #ffffff20,0 12px 24px #0008}
+.table{
+  position:relative;isolation:isolate;display:grid;place-items:center;
+  width:100%;min-height:410px;height:clamp(350px,42vw,450px);padding:28px 30px 34px;
+  overflow:hidden;touch-action:pan-y;
+  background-color:#315543;
+  background-image:
+    radial-gradient(ellipse at 50% 49%,#9db69a22 0%,#52735e33 34%,transparent 65%),
+    linear-gradient(135deg,#ffffff0b 25%,transparent 25% 50%,#00000008 50% 75%,transparent 75%),
+    repeating-linear-gradient(0deg,#ffffff0a 0 1px,transparent 1px 18px),
+    repeating-linear-gradient(90deg,#ffffff08 0 1px,transparent 1px 18px),
+    linear-gradient(145deg,#3d6952,#294b3b 60%,#233e32);
+  background-size:auto,24px 24px,auto,auto,auto;
+  border:7px solid #70563f;border-radius:8px;
+  box-shadow:inset 0 0 0 2px #c5a27666,inset 0 0 34px #081b13aa,0 5px 0 #35261d,0 10px 18px #0007;
+}
+.table:before{
+  content:"ESD  ·  10⁶ Ω  ·  KURONEKO REPAIR";
+  position:absolute;inset:10px;border:1px solid #d5e3cf45;border-radius:4px;
+  color:#e0ead866;font:9px var(--f-display);letter-spacing:.18em;
+  padding:8px 9px;pointer-events:none;z-index:-1;
+  box-shadow:inset 0 0 22px #07180f55;
+}
+.table:after{
+  content:"ESD REPAIR MAT  /  2005";position:absolute;right:15px;bottom:10px;
+  color:#dce8d477;font:9px var(--f-display);letter-spacing:.16em;pointer-events:none;z-index:0;
+}
+.table svg#dsv{
+  display:block;max-width:min(100%,620px)!important;max-height:370px!important;
+  height:auto!important;margin:auto;overflow:visible;position:relative;z-index:1;
+  transform-origin:center center;transform-style:preserve-3d;
+  filter:drop-shadow(0 14px 11px #07130dbb) drop-shadow(0 2px 2px #0008);
+}
+.table svg#dsv.board-view{max-width:min(100%,680px)!important;max-height:390px!important}
+.table svg#dsv.microscope-view{max-height:390px!important}
+.table svg#dsv.is-dragging{cursor:grabbing}
+#dsv .pt:hover,#dsv .micro-chip:hover{filter:brightness(1.28) drop-shadow(0 0 4px #a4e8cb55)}
+.bench-gear{box-shadow:inset 0 1px 0 #ffffff18,0 3px 0 #10131a}
+.bench-drawer{grid-template-columns:repeat(4,minmax(0,1fr))}
+.bench-well{min-height:48px}
+.bench-extra{grid-template-columns:minmax(0,1.55fr) minmax(180px,.75fr)}
+@media(max-width:850px){
+  .bench{grid-template-columns:1fr}
+  .tools{flex-direction:row;flex-wrap:wrap}
+  .tools button{min-width:145px;flex:1 1 145px}
+  .table{height:clamp(300px,58vw,410px);min-height:300px;padding:20px 18px 30px}
+  .table svg#dsv{max-height:340px!important}
+  .table svg#dsv.board-view{max-height:350px!important}
+  .bench-extra{grid-template-columns:1fr}
+}
+@media(max-width:520px){
+  .table{height:310px;min-height:310px;padding:16px 10px 27px}
+  .table svg#dsv{max-height:265px!important}
+  .table svg#dsv.board-view{max-height:280px!important}
+  .bench-drawer{grid-template-columns:1fr 1fr}
+  .bench-gear{font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .table svg#dsv{transition:none!important}
+  .table svg#dsv.board-view{animation:none!important}
+}
