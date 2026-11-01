@@ -275,9 +275,32 @@ function confirmBox(msg,yes){
 }
 /* --- Kunden-Avatar --- */
 function avatar(name){
-  let h=0;for(const ch of name)h=(h*31+ch.charCodeAt(0))>>>0;
-  const hair=['#1a1a1a','#4a2c1a','#7a3b1e','#c8b88a','#2c3e63'][h%5],shirt=['#ff6b9a','#7fe0c8','#ffe27a','#8d8fb8','#e0793a'][(h>>3)%5],skin=['#f6d3b3','#e8b98f','#d99d73'][(h>>5)%3];
-  return `<svg viewBox="0 0 110 150" aria-hidden="true"><rect x="22" y="78" width="66" height="72" rx="14" fill="${shirt}"/><circle cx="55" cy="48" r="28" fill="${skin}"/><path d="M26 46 Q28 16 55 17 Q84 16 84 46 Q70 30 55 32 Q40 30 26 46Z" fill="${hair}"/><circle cx="45" cy="52" r="3" fill="#222"/><circle cx="65" cy="52" r="3" fill="#222"/><path d="M47 64 Q55 70 63 64" stroke="#a33" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+  let h=0;for(const ch of String(name||'Guest'))h=(h*31+ch.charCodeAt(0))>>>0;
+  const hair=['#29232a','#4d3127','#75442d','#b9a67c','#344663'][h%5];
+  const shirt=['#c85c4c','#66999a','#9a7caa','#d39a5c','#597d67'][(h>>3)%5];
+  const skin=['#f5d5b8','#e9bd9a','#dca37d'][(h>>5)%3];
+  const accent=['#f1c27c','#e9a3a0','#a4d2c3','#e7d8b9'][(h>>7)%4];
+  return '<svg viewBox="0 0 120 160" aria-hidden="true">'+
+    '<defs><linearGradient id="portraitBg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9bb8b1"/><stop offset="1" stop-color="#f0d4ad"/></linearGradient>'+
+    '<linearGradient id="portraitCoat" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+shirt+'"/><stop offset="1" stop-color="#4b3a35"/></linearGradient></defs>'+
+    '<rect width="120" height="160" fill="url(#portraitBg)"/>'+
+    '<path d="M4 160 Q6 111 31 99 Q60 83 89 99 Q116 112 118 160Z" fill="url(#portraitCoat)" stroke="#49372f" stroke-width="2"/>'+
+    '<path d="M43 104 L59 127 L78 103 L70 160 L47 160Z" fill="#f4e4c8"/>'+
+    '<path d="M51 103 L60 120 L68 103" fill="none" stroke="'+accent+'" stroke-width="4"/>'+
+    '<path d="M20 77 Q10 29 40 14 Q73 -2 96 26 Q111 48 100 98 L91 117 L27 112Z" fill="'+hair+'"/>'+
+    '<ellipse cx="60" cy="60" rx="34" ry="42" fill="'+skin+'" stroke="#8c5c48" stroke-width="1.3"/>'+
+    '<path d="M24 54 Q19 15 57 11 Q98 9 101 50 Q87 29 71 31 Q47 25 24 54Z" fill="'+hair+'"/>'+
+    '<path d="M28 47 Q37 55 42 81 Q31 78 26 65Z M91 44 Q79 53 77 82 Q94 75 96 61Z" fill="'+hair+'"/>'+
+    '<path d="M40 60 Q49 53 55 61 M66 61 Q74 53 81 61" fill="none" stroke="#49312c" stroke-width="2"/>'+
+    '<ellipse cx="47" cy="65" rx="5.4" ry="7" fill="#fff8e9"/><ellipse cx="74" cy="65" rx="5.4" ry="7" fill="#fff8e9"/>'+
+    '<ellipse cx="48" cy="66" rx="2.8" ry="4.2" fill="#4b5962"/><ellipse cx="73" cy="66" rx="2.8" ry="4.2" fill="#4b5962"/>'+
+    '<circle cx="49" cy="64" r="1.1" fill="#fff"/><circle cx="74" cy="64" r="1.1" fill="#fff"/>'+
+    '<ellipse cx="36" cy="80" rx="6" ry="3.2" fill="#dc9184" opacity=".44"/><ellipse cx="84" cy="80" rx="6" ry="3.2" fill="#dc9184" opacity=".44"/>'+
+    '<path d="M55 89 Q61 94 68 88" fill="none" stroke="#a85c57" stroke-width="2" stroke-linecap="round"/>'+
+    '<path d="M25 39 Q37 19 57 23 Q74 18 96 41" fill="none" stroke="'+hair+'" stroke-width="7" stroke-linecap="round"/>'+
+    '<circle cx="95" cy="23" r="7" fill="'+accent+'" stroke="#715548" stroke-width="1.4"/>'+
+    '<rect x="4" y="4" width="112" height="152" fill="none" stroke="#e9d8ba" stroke-width="3"/>'+
+  '</svg>';
 }
 /* --- Laden --- */
 function curItem(){return S.queue[S.qi]}

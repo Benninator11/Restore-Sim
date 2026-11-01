@@ -17,6 +17,7 @@ test('isometric shop loads, customer story plays and retro web store works', asy
   expect(size.height).toBeGreaterThan(350);
   await expect(page.locator('.shop-world-clock')).toBeVisible();
   await expect(page.locator('.shop-world-controls')).toContainText('KLICK');
+  await page.screenshot({ path: 'test-results/shop-isometric.png' });
 
   await page.locator('[data-world-action="customer"]').click();
   await expect(page.locator('#dlg .dialog')).toBeVisible();
@@ -40,5 +41,8 @@ test('isometric shop loads, customer story plays and retro web store works', asy
   await expect(page.locator('#st-pc [data-decor-buy="plant"]')).toHaveText('Eingebaut');
   await page.locator('#tabs button[data-t="shop"]').click();
   await expect(page.locator('#shop-world')).toHaveAttribute('data-decor', /plant/);
+  await page.locator('[data-world-action="bench"]').click();
+  await expect(page.locator('#st-bench .device3d-stage')).toBeVisible();
+  await page.screenshot({ path: 'test-results/workbench-topdown.png' });
   expect(pageErrors, 'Uncaught JavaScript errors in shop, dialogue and web store').toEqual([]);
 });
