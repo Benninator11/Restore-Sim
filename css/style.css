@@ -286,3 +286,5 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 @media(max-width:640px){.device3d-stage{margin-top:8px;margin-bottom:18px}}
 
 .device3d-stage.is-dragging #dsv{transition:none!important;cursor:grabbing}
+
+.device3d-stage.is-dragging #dsv{transition:none!important;cursor:grabbing}

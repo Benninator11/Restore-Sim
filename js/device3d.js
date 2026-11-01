@@ -7,6 +7,7 @@
   const T=window.THREE;
   let active=null;
   const DEPTH={handheld:26,console:36,phone:15,mp3:18,camera:42,radio:38,tablet:10,laptop:25,gamepad:24,watch:13,buds:22,speaker:46,ereader:12,minidisc:25,router:34};
+  const SIZE={handheld:[384,284],console:[364,280],phone:[340,210],mp3:[330,284],camera:[364,274],radio:[364,284],tablet:[380,290],laptop:[364,260],gamepad:[364,276],watch:[290,290],buds:[260,284],speaker:[340,284],ereader:[380,284],minidisc:[380,284],router:[330,280]};
 
   function color(v,fallback){try{return new T.Color(v||fallback)}catch(_){return new T.Color(fallback||'#77808a')}}
   function roundedRect(w,h,r){
@@ -18,16 +19,16 @@
   function deviceShape(form){
     if(form==='watch'){const s=new T.Shape();s.absellipse(0,0,145,145,0,Math.PI*2,false,0);return s}
     if(form==='gamepad'){
-      const s=new T.Shape();s.moveTo(-155,112);s.bezierCurveTo(-125,140,-72,126,-42,96);s.lineTo(-22,72);s.lineTo(22,72);s.lineTo(42,96);
-      s.bezierCurveTo(72,126,125,140,155,112);s.bezierCurveTo(184,88,195,35,190,-48);s.bezierCurveTo(187,-108,155,-132,112,-118);
-      s.lineTo(70,-94);s.lineTo(-70,-94);s.lineTo(-112,-118);s.bezierCurveTo(-155,-132,-187,-108,-190,-48);s.bezierCurveTo(-195,35,-184,88,-155,112);s.closePath();return s;
+      const s=new T.Shape();s.moveTo(-148,105);s.bezierCurveTo(-121,132,-69,122,-40,92);s.lineTo(-21,70);s.lineTo(21,70);s.lineTo(40,92);
+      s.bezierCurveTo(69,122,121,132,148,105);s.bezierCurveTo(174,82,183,33,179,-45);s.bezierCurveTo(176,-101,146,-126,106,-113);
+      s.lineTo(66,-91);s.lineTo(-66,-91);s.lineTo(-106,-113);s.bezierCurveTo(-146,-126,-176,-101,-179,-45);s.bezierCurveTo(-183,33,-174,82,-148,105);s.closePath();return s;
     }
     if(form==='camera'){
-      const s=new T.Shape();s.moveTo(-180,-112);s.lineTo(-174,85);s.quadraticCurveTo(-172,125,-132,125);s.lineTo(-60,125);s.lineTo(-30,145);s.lineTo(50,145);s.lineTo(76,118);s.lineTo(160,118);
-      s.quadraticCurveTo(190,118,190,84);s.lineTo(190,-112);s.quadraticCurveTo(190,-130,164,-130);s.lineTo(-156,-130);s.quadraticCurveTo(-180,-130,-180,-112);s.closePath();return s;
+      const s=new T.Shape();s.moveTo(-172,-108);s.lineTo(-168,80);s.quadraticCurveTo(-166,120,-128,120);s.lineTo(-58,120);s.lineTo(-28,137);s.lineTo(48,137);s.lineTo(72,114);s.lineTo(154,114);
+      s.quadraticCurveTo(182,114,182,82);s.lineTo(182,-108);s.quadraticCurveTo(182,-128,158,-128);s.lineTo(-148,-128);s.quadraticCurveTo(-172,-128,-172,-108);s.closePath();return s;
     }
-    const radii={handheld:30,console:25,phone:52,mp3:48,radio:14,tablet:34,laptop:27,buds:42,speaker:48,ereader:26,minidisc:50,router:25};
-    return roundedRect(384,284,radii[form]||24);
+    const radii={handheld:30,console:25,phone:48,mp3:48,radio:14,tablet:34,laptop:27,buds:42,speaker:48,ereader:26,minidisc:50,router:25};
+    const size=SIZE[form]||[384,284];return roundedRect(size[0],size[1],radii[form]||24);
   }
   function basic(hex,roughness,metalness){return new T.MeshStandardMaterial({color:color(hex),roughness:roughness==null?.48:roughness,metalness:metalness==null?.22:metalness})}
   function addBox(parent,w,h,depth,x,y,z,hex,opts){
@@ -131,8 +132,9 @@
   }
   function addDeviceDetails(group,j,frontZ){
     const form=DEV[j.dev].form;
-    addBox(group,5,25,8,-194,18,0,'#aab2bc');addBox(group,5,17,8,-194,-18,0,'#687684');addBox(group,5,24,8,194,-10,0,'#aab2bc');
-    addBox(group,42,8,10,0,-138,frontZ+3,'#18212d');addBox(group,32,5,5,0,-140,frontZ+8,'#b9c2ca');
+    const size=SIZE[form]||[384,284],halfW=size[0]/2,halfH=size[1]/2;
+    addBox(group,5,25,8,-halfW-1,18,0,'#aab2bc');addBox(group,5,17,8,-halfW-1,-18,0,'#687684');addBox(group,5,24,8,halfW+1,-10,0,'#aab2bc');
+    addBox(group,42,8,10,0,-halfH+4,frontZ+3,'#18212d');addBox(group,32,5,5,0,-halfH+3,frontZ+8,'#b9c2ca');
     if(form==='camera'){
       addCylinder(group,59,10,70,5,frontZ+3,'#7f8995',48);addTorus(group,53,5,70,5,frontZ+8,'#c5ced8');addCylinder(group,39,5,70,5,frontZ+10,'#111d2b',48);addCylinder(group,18,2,67,8,frontZ+13,'#315674',32);
       addBox(group,74,18,9,-90,88,frontZ+3,'#161d26');
