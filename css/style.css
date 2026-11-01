@@ -272,3 +272,15 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
   .table svg#dsv{transition:none!important}
   .table svg#dsv.board-view{animation:none!important}
 }
+
+/* Echtes 3D-Modell: WebGL-Gehäuse, Volumen und erhobene Platinenbauteile */
+.device3d-stage{position:relative;display:block;margin:12px auto 24px;max-width:100%;transform-style:preserve-3d;perspective:850px;isolation:isolate;overflow:visible;touch-action:none}
+.device3d-canvas{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:visible}
+.device3d-canvas canvas{display:block;width:100%!important;height:100%!important;pointer-events:none;background:transparent}
+.device-hit-layer{position:absolute;inset:0;z-index:4;transform-style:preserve-3d;pointer-events:none}
+.device-hit-layer svg{position:absolute;inset:0;display:block;width:100%!important;height:100%!important;max-height:none!important;opacity:.001;overflow:visible;pointer-events:all;touch-action:none;transform-origin:50% 50%;transform-box:border-box;filter:none!important}
+.device3d-stage.is-dragging .device-hit-layer svg{cursor:grabbing}
+.device3d-stage .device-hit-layer svg .sc,.device3d-stage .device-hit-layer svg .pt,.device3d-stage .device-hit-layer svg .micro-chip,.device3d-stage .device-hit-layer svg .micro-pin,.device3d-stage .device-hit-layer svg .part-pin,.device3d-stage .device-hit-layer svg .smd-pin,.device3d-stage .device-hit-layer svg .smd-chip{pointer-events:all}
+.device3d-fallback .device-hit-layer svg{opacity:1!important;position:relative}
+.device3d-stage .device3d-error{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;color:#ffe7aa;background:#201b2ddd;border:1px solid #a88750;border-radius:5px;padding:5px 8px;text-align:center;font:11px monospace}
+@media(max-width:640px){.device3d-stage{margin-top:8px;margin-bottom:18px}}

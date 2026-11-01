@@ -433,10 +433,11 @@ function renderBench(){
   const side=st.coverOff?'Innenleben':st.flipped?'Rückseite':'Vorderseite';
   el.innerHTML=`<div class="row" style="align-items:center;justify-content:space-between"><div><h2>${d.name} (${j.name})</h2><span class="tag">${side}</span><span class="tag">Schraubenkopf: ${d.bit}</span></div><div><button class="btn alt" id="bq">Anderes Gerät</button></div></div>${stepsHtml}
   <div class="bench"><div class="tools" id="tools">${TOOLS.map(t=>`<button data-t="${t.id}" aria-pressed="${tool===t.id}"><span class="tool-icon">${t.icon}</span><span>${t.name}<small>${t.sub}</small></span></button>`).join('')}</div>
-  <div class="workstation"><div class="bench-gear"><span class="work-lamp"><i></i> LED-LUPENLAMPE</span><span class="esd-chip">⏚ ESD-SCHUTZMATTE</span><span class="bench-clock">PRECISION REPAIR · 2005</span></div><div class="table" id="tbl">${deviceSvg(j,clean)}</div><div class="bench-drawer"><div class="bench-well"><b>Magnetschale</b><span class="screws">● ● ● ●</span></div><div class="bench-well"><b>Bauteilablage</b><span>▰ ▪ ▰ ▪</span></div><div class="bench-well"><b>Reiniger</b><span class="chemical">IPA · Mikrofasertuch</span></div><div class="bench-well"><b>IC-Teststation · CT-08</b><span>🔬 U01–U18 einzeln prüfen</span></div></div><div class="chip-log"><b>Chip-Testprotokoll · ${identified.length}/${st.micro.length} erkannt</b><div class="chip-log-list">${chipLogHtml}</div></div><div class="hint" id="hint">${hintTxt||'Nimm das Gerät zuerst in die Hand und drehe es um.'}</div><div class="row" id="acts"></div></div></div>`;
+  <div class="workstation"><div class="bench-gear"><span class="work-lamp"><i></i> LED-LUPENLAMPE</span><span class="esd-chip">⏚ ESD-SCHUTZMATTE</span><span class="bench-clock">PRECISION REPAIR · 2005</span></div><div class="table" id="tbl"><div class="device3d-stage" id="device3d-stage" style="width:min(100%,${d.width||340}px);aspect-ratio:${d.portrait?'3 / 4':'4 / 3'}"><div class="device3d-canvas" id="device3d-canvas"></div><div class="device-hit-layer" id="device-hit-layer">${deviceSvg(j,clean)}</div></div></div><div class="bench-drawer"><div class="bench-well"><b>Magnetschale</b><span class="screws">● ● ● ●</span></div><div class="bench-well"><b>Bauteilablage</b><span>▰ ▪ ▰ ▪</span></div><div class="bench-well"><b>Reiniger</b><span class="chemical">IPA · Mikrofasertuch</span></div><div class="bench-well"><b>IC-Teststation · CT-08</b><span>🔬 U01–U18 einzeln prüfen</span></div></div><div class="chip-log"><b>Chip-Testprotokoll · ${identified.length}/${st.micro.length} erkannt</b><div class="chip-log-list">${chipLogHtml}</div></div><div class="hint" id="hint">${hintTxt||'Nimm das Gerät zuerst in die Hand und drehe es um.'}</div><div class="row" id="acts"></div></div></div>`;
   $('#bq').onclick=()=>go('jobs');
   $('#tools').querySelectorAll('button').forEach(b=>b.onclick=()=>{tool=b.dataset.t;sfx(500,.04);renderBench()});
   wireBench(j,clean);
+  if(window.Kuroneko3D)window.Kuroneko3D.mount(j);
 }
 function wireBench(j,clean){
   const st=j.st,d=DEV[j.dev],tbl=$('#tbl'),acts=$('#acts');
@@ -1064,19 +1065,8 @@ function processMicroPin(j,microId,index){
   save();renderBench();renderTabs();
 }
 function attach3DRotation(j){
-  const svg=$('#dsv');if(!svg)return;const st=j.st,isBoard=!!st.boardOut;
-  if(tool==='microscope')svg.classList.add('microscope-view');else svg.classList.remove('microscope-view');
-  let x=isBoard?st.boardRotX:st.viewRotX,y=isBoard?st.boardRotY:st.viewRotY;
-  const apply=()=>{const z=tool==='microscope'?1.23:1;svg.style.transform=`perspective(1200px) rotateX(${x}deg) rotateY(${y}deg) scale(${z})`;};apply();
-  let drag=null;
-  svg.addEventListener('pointerdown',e=>{
-    if(e.target.closest&&e.target.closest('.sc,.pt,.micro-chip,.micro-pin,.part-pin,.dirt'))return;
-    drag={x:e.clientX,y:e.clientY,rx:x,ry:y};svg.classList.add('is-dragging');
-    try{svg.setPointerCapture(e.pointerId)}catch(_){ }
-  });
-  svg.addEventListener('pointermove',e=>{if(!drag)return;const nx=Math.max(-48,Math.min(48,drag.rx+(e.clientY-drag.y)*.55)),ny=Math.max(-65,Math.min(65,drag.ry+(e.clientX-drag.x)*.65));x=nx;y=ny;apply()});
-  const end=()=>{if(!drag)return;drag=null;svg.classList.remove('is-dragging');if(isBoard){st.boardRotX=x;st.boardRotY=y}else{st.viewRotX=x;st.viewRotY=y}save()};
-  svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
+  if(window.Kuroneko3D){window.Kuroneko3D.attachRotation(j);return;}
+  const svg=$('#dsv');if(!svg)return;svg.style.opacity='1';
 }
 function attachScrewHold(j){
   const st=j.st,d=DEV[j.dev],tbl=$('#tbl');if(!tbl)return;
