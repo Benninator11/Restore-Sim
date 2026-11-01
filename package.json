@@ -1,0 +1,7 @@
+{
+  "name": "restore-sim-browser-tests",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": { "test:browser": "playwright test" },
+  "devDependencies": { "@playwright/test": "latest" }
+}

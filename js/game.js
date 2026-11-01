@@ -653,7 +653,7 @@ function testDevice(j,clean){
   const wood="<svg xmlns='http://www.w3.org/2000/svg' width='500' height='320'><filter id='w' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.008 0.28' numOctaves='5' seed='11'/><feColorMatrix values='0.55 0 0 0 0.18  0.38 0 0 0 0.09  0.2 0 0 0 0.04  0 0 0 0 1'/></filter><rect width='100%' height='100%' filter='url(#w)'/></svg>";
   document.documentElement.style.setProperty('--wood','url("data:image/svg+xml,'+encodeURIComponent(wood)+'")');
   const st=document.createElement('style');
-  st.textContent='.table{background:var(--wood),#3a2b25!important;background-size:cover!important;box-shadow:inset 0 0 40px #000a,inset 0 0 0 2px #0006}.table svg{filter:drop-shadow(0 10px 14px #000a)}.shopscene .counter{background:var(--wood),#5b4033!important;background-size:cover!important;box-shadow:inset 0 6px 8px #fff3,0 -4px 12px #0008}.cust svg{filter:drop-shadow(0 8px 6px #0008)}.crt{background:linear-gradient(145deg,#d9d3c4,#a9a393)!important;box-shadow:inset 0 2px 0 #fff8,0 8px 20px #000a}.win{box-shadow:inset 0 0 40px #0003}';
+  st.textContent='.shopscene .counter{background:var(--wood),#5b4033!important;background-size:cover!important;box-shadow:inset 0 6px 8px #fff3,0 -4px 12px #0008}.cust svg{filter:drop-shadow(0 8px 6px #0008)}.crt{background:linear-gradient(145deg,#d9d3c4,#a9a393)!important;box-shadow:inset 0 2px 0 #fff8,0 8px 20px #000a}.win{box-shadow:inset 0 0 40px #0003}';
   document.head.appendChild(st);
 })();
 function seeded(n){let s=n*7919+13;return()=>{s=(s*9301+49297)%233280;return s/233280}}
