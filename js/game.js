@@ -302,6 +302,7 @@ function renderShop(){
     const loading=$('.shop-world-loading');if(loading)loading.remove();
     if(!ok&&!$('#shop-world .shop-world-fallback'))$('#shop-world').insertAdjacentHTML('afterbegin','<div class="shop-world-fallback"><b>Kuroneko Repair</b><p>3D ist in diesem Browser nicht verfügbar. Nutze die Schnellaktionen rechts.</p></div>');
   }
+  if(cur)drawDlg();
   el.querySelectorAll('[data-world-action]').forEach(b=>b.addEventListener('click',()=>handleShopInteraction(b.dataset.worldAction)));
 }
 

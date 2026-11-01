@@ -16,6 +16,13 @@ test('first-person shop loads and its locations open existing game screens', asy
   expect(size.width).toBeGreaterThan(300);
   expect(size.height).toBeGreaterThan(250);
 
+  // The first visitor is a story customer; the dialog must render inside the new world.
+  await page.locator('[data-world-action="customer"]').click();
+  await expect(page.locator('#dlg .dialog')).toBeVisible();
+  await expect(page.locator('#dlg .choices button')).toHaveCount(2);
+  await page.locator('#dlg .choices button').first().click();
+  await expect(page.locator('#dlg .dialog')).toBeVisible();
+
   await page.locator('[data-world-action="computer"]').click();
   await expect(page.locator('#st-pc')).toBeVisible();
 
