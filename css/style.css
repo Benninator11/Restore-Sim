@@ -473,3 +473,9 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 }
 .tool-contact{animation:toolContact .28s ease-out}
 @keyframes toolContact{0%{filter:brightness(1)}45%{filter:brightness(1.8) drop-shadow(0 0 6px #ffe27a)}100%{filter:brightness(1)}}
+
+/* Decorative task note must never intercept chip, pin or solder-pad clicks. */
+.repair-note{pointer-events:none!important}
+.device3d-canvas{pointer-events:none!important}
+.device-hit-layer{pointer-events:none}
+.device-hit-layer #dsv{pointer-events:all!important;touch-action:none}

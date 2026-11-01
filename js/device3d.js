@@ -148,7 +148,7 @@
   }
   function mount(j){
     const stage=document.getElementById('device3d-stage'),host=document.getElementById('device3d-canvas'),svg=document.getElementById('dsv');
-    if(!stage||!host||!svg)return;dispose();stage.classList.remove('device3d-fallback');host.innerHTML='';host.style.display='block';svg.style.opacity='1';
+    if(!stage||!host||!svg)return;dispose();stage.classList.remove('device3d-fallback');host.innerHTML='';host.style.display='block';svg.style.opacity='1';svg.style.pointerEvents='all';svg.style.touchAction='none';svg.style.zIndex='4';
     const d=DEV[j.dev],st=j.st,portrait=!!d.portrait,viewHeight=portrait?400:300,viewWidth=portrait?300:400,rect=stage.getBoundingClientRect();
     if(!T||!T.WebGLRenderer){host.style.display='none';stage.classList.add('device3d-fallback');svg.style.opacity='1';stage.insertAdjacentHTML('beforeend','<div class="device3d-error">WebGL ist in diesem Browser nicht verfügbar – klassische Ansicht wird gezeigt.</div>');return}
     let renderer,scene,camera;
@@ -187,7 +187,7 @@
         viewer3D.textureReady=true;if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
         faceMaterial.map=texture;faceMaterial.opacity=1;faceMaterial.needsUpdate=true;
         /* Keep the closed/front/back device face visible; only the opened board uses the WebGL texture alone. */
-        svg.style.opacity='.001';renderer.render(scene,camera);
+        svg.style.opacity='.001';svg.style.pointerEvents='all';svg.style.touchAction='none';renderer.render(scene,camera);
       },err=>{
         if(active!==viewer3D)return;
         if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
