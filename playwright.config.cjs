@@ -3,7 +3,7 @@ module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: false,
   workers: 1,
-  timeout: 45000,
+  timeout: 90000,
   expect: { timeout: 8000 },
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   use: {

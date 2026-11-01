@@ -58,13 +58,24 @@
     };
     image.onerror=()=>{const err=new Error('SVG-Textur konnte nicht geladen werden');URL.revokeObjectURL(url);console.warn(err.message);if(onFail)onFail(err)};image.src=url;
   }
-  function dispose(){
-    if(!active)return;window.removeEventListener('resize',active.resize);if(active.textureTimer)clearTimeout(active.textureTimer);active.renderer.dispose();
-    active.scene.traverse(o=>{
+  function disposeScene(scene){
+    if(!scene)return;
+    scene.traverse(o=>{
       if(o.geometry)o.geometry.dispose();
-      if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose();m.dispose()});
+      if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{
+        if(m.map)m.map.dispose();
+        if(m.dispose)m.dispose();
+      });
     });
-    if(active.renderer.domElement.parentNode)active.renderer.domElement.parentNode.removeChild(active.renderer.domElement);active=null;
+  }
+  function dispose(){
+    if(!active)return;
+    window.removeEventListener('resize',active.resize);
+    if(active.textureTimer)clearTimeout(active.textureTimer);
+    disposeScene(active.scene);
+    active.renderer.dispose();
+    if(active.renderer.domElement.parentNode)active.renderer.domElement.parentNode.removeChild(active.renderer.domElement);
+    active=null;
   }
   function chipLabel(label){
     const canvas=document.createElement('canvas');canvas.width=128;canvas.height=72;const c=canvas.getContext('2d');
@@ -148,14 +159,38 @@
   }
   function mount(j){
     const stage=document.getElementById('device3d-stage'),host=document.getElementById('device3d-canvas'),svg=document.getElementById('dsv');
-    if(!stage||!host||!svg)return;dispose();stage.classList.remove('device3d-fallback');host.innerHTML='';host.style.display='block';svg.style.opacity='1';svg.style.pointerEvents='all';svg.style.touchAction='none';svg.style.zIndex='4';
+    if(!stage||!host||!svg)return;stage.classList.remove('device3d-fallback');host.innerHTML='';host.style.display='block';svg.style.opacity='1';svg.style.pointerEvents='all';svg.style.touchAction='none';svg.style.zIndex='4';
     const d=DEV[j.dev],st=j.st,portrait=!!d.portrait,viewHeight=portrait?400:300,viewWidth=portrait?300:400,rect=stage.getBoundingClientRect();
     if(!T||!T.WebGLRenderer){host.style.display='none';stage.classList.add('device3d-fallback');svg.style.opacity='1';stage.insertAdjacentHTML('beforeend','<div class="device3d-error">WebGL ist in diesem Browser nicht verfügbar – klassische Ansicht wird gezeigt.</div>');return}
-    let renderer,scene,camera;
+    let renderer=null,scene,camera;
     try{
-      renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));renderer.setSize(Math.max(1,rect.width),Math.max(1,rect.height),false);renderer.setClearColor(0x000000,0);
-      if(T.SRGBColorSpace)renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;host.appendChild(renderer.domElement);
+      // Reuse one WebGL context across workbench re-renders. The old code
+      // destroyed and recreated a renderer for every tool click, eventually
+      // exhausting Firefox/Chromium WebGL contexts and freezing the bench.
+      if(active){
+        const previous=active;
+        window.removeEventListener('resize',previous.resize);
+        if(previous.textureTimer)clearTimeout(previous.textureTimer);
+        disposeScene(previous.scene);
+        active=null;
+        renderer=previous.renderer;
+        let contextLost=false;
+        try{contextLost=renderer.getContext().isContextLost()}catch(_){contextLost=true}
+        if(contextLost){renderer.dispose();renderer=null}
+        else{
+          if(renderer.renderLists&&renderer.renderLists.dispose)renderer.renderLists.dispose();
+          if(renderer.domElement.parentNode!==host)host.appendChild(renderer.domElement);
+        }
+      }
+      if(!renderer){
+        renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});
+        host.appendChild(renderer.domElement);
+      }
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+      renderer.setSize(Math.max(1,rect.width),Math.max(1,rect.height),false);
+      renderer.setClearColor(0x000000,0);
+      if(T.SRGBColorSpace)renderer.outputColorSpace=T.SRGBColorSpace;
+      renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;
       scene=new T.Scene();scene.add(new T.HemisphereLight(0xddeaff,0x34302b,1.4));
       const key=new T.DirectionalLight(0xfff1d6,2.15);key.position.set(-260,360,520);scene.add(key);
       const fill=new T.DirectionalLight(0x7eb9df,.95);fill.position.set(340,-220,280);scene.add(fill);
@@ -196,7 +231,12 @@
       });
       renderer.render(scene,camera);stage.style.perspective=cameraZ+'px';stage._kuroneko3D=active;
     }catch(err){
-      console.error('3D-Werkbank konnte nicht gestartet werden:',err);if(renderer)renderer.dispose();
+      console.error('3D-Werkbank konnte nicht gestartet werden:',err);
+      if(active&&active.stage===stage){window.removeEventListener('resize',active.resize);active=null}
+      if(renderer){
+        try{renderer.dispose()}catch(_){}
+        if(renderer.domElement&&renderer.domElement.parentNode)renderer.domElement.parentNode.removeChild(renderer.domElement);
+      }
       host.innerHTML='';host.style.display='none';stage.classList.add('device3d-fallback');svg.style.opacity='1';
       stage.insertAdjacentHTML('beforeend','<div class="device3d-error">3D konnte nicht initialisiert werden. Die normale Werkbank bleibt verfügbar.</div>');
     }

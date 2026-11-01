@@ -185,6 +185,7 @@ test('tweezers remove a socket part to the mat and install a stocked replacement
 });
 
 test('multiple device geometries fit desktop and mobile viewports', async ({ page }) => {
+  await page.goto('/'); // Establish the same-origin context before touching localStorage.
   for (const dev of ['handheld','phone','tablet','laptop','watch','camera','router']) {
     await page.evaluate(save => localStorage.setItem('kuroneko_v1', JSON.stringify(save)), makeState(dev, []));
     await page.reload();
