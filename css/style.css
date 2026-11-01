@@ -439,3 +439,37 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
   .device3d-stage{left:41%!important;top:36%!important;max-width:85%}
   .repair-note{width:176px;min-height:138px}.bench-drawer{grid-template-columns:1fr 1fr}.prop-cup{right:8px}
 }
+
+
+/* Werkzeuge sichtbar und mit eindeutigen interaktiven Treffern */
+#tbl{cursor:crosshair}
+#dsv{pointer-events:all!important}
+#dsv .sc,#dsv .pt,#dsv .micro-chip,#dsv .part-pin,#dsv .micro-pin,#dsv .smd-pin,#dsv .smd-chip,#dsv .dirt{
+  pointer-events:all!important;cursor:crosshair;
+}
+#dsv .part-pin:hover .pin-hit,#dsv .micro-pin:hover .pin-hit,#dsv .smd-pin:hover .pin-hit{
+  fill:#ffe27a55;stroke:#fff;stroke-width:1.2;
+}
+.tool-cursor{
+  position:absolute;z-index:20;left:50%;top:50%;display:none;align-items:center;gap:5px;
+  transform:translate(-8px,-8px) rotate(-14deg);pointer-events:none;white-space:nowrap;
+  filter:drop-shadow(0 3px 3px #07111dcc);
+}
+.tool-cursor.visible{display:flex}
+.tool-cursor-icon{
+  display:grid;place-items:center;width:36px;height:36px;border:1px solid #f3dfb5;
+  border-radius:50%;background:linear-gradient(145deg,#f4e1ba,#9c754a);
+  box-shadow:inset 0 1px #fff8,0 2px 4px #0007;font-size:22px;
+}
+.tool-cursor small{
+  padding:3px 6px;border:1px solid #d9c9a3;border-radius:3px;
+  color:#33271c;background:#f1e5c9;font:9px var(--f-display);
+}
+.tool-cursor.is-working{animation:toolSwing .28s ease-in-out}
+@keyframes toolSwing{
+  0%{transform:translate(-8px,-8px) rotate(-14deg) scale(1)}
+  45%{transform:translate(-8px,-2px) rotate(18deg) scale(.88)}
+  100%{transform:translate(-8px,-8px) rotate(-14deg) scale(1)}
+}
+.tool-contact{animation:toolContact .28s ease-out}
+@keyframes toolContact{0%{filter:brightness(1)}45%{filter:brightness(1.8) drop-shadow(0 0 6px #ffe27a)}100%{filter:brightness(1)}}

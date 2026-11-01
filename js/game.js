@@ -470,7 +470,7 @@ function wireBench(j,clean){
   const redraw=()=>{tbl.style.pointerEvents='none';setTimeout(()=>{if(tbl.isConnected){tbl.style.pointerEvents='';renderBench()}},520)};
   const animate=(target)=>{
     const cl='tool-'+tool;tbl.classList.remove('tool-driver','tool-tweezers','tool-brush','tool-cloth','tool-meter','tool-chiptest','tool-solder','tool-hand');
-    void tbl.offsetWidth;tbl.classList.add(cl);
+    void tbl.offsetWidth;tbl.classList.add(cl);animateToolAction(target);
     if(target){target.classList.add('tool-hit');setTimeout(()=>target.classList.remove('tool-hit'),550)}
     setTimeout(()=>tbl.classList.remove(cl),600);
   };
@@ -580,24 +580,55 @@ function wireBench(j,clean){
     say('Wähle den Chip-Tester zum Identifizieren oder den Lötkolben zum Auslöten.');
   });
 
-  // Wischen/Putzen mit sichtbarer Werkzeugbewegung.
+  // Pinsel und Alkohol-Tuch arbeiten als Wischbewegung direkt über der Matte.
   let down=false,lastCleanAt=0;
-  const scrub=(el)=>{
-    if(!el||!el.classList||!el.classList.contains('dirt')||!st.coverOff)return;
-    const i=+el.dataset.i,x=st.dirt[i];if(!x||x.a<=.02)return;
-    if(tool==='brush'){x.a-=x.hard?.025:.11}
-    else if(tool==='cloth'){x.a-=x.hard?.09:.15}
-    else return;
-    el.setAttribute('opacity',Math.max(0,x.a));animate();
-    if(x.a<=.02){el.remove();sfx(1500,.025);const cl=Math.max(0,1-st.dirt.reduce((a,y)=>a+Math.max(0,y.a),0)/(st.dirt.length*.75));if(cl>.8)say('Die Platine ist sauber. Prüfe jetzt die Bauteile.');}
-    if(Date.now()-lastCleanAt>250){lastCleanAt=Date.now();save()}
+  const dirtAt=e=>{
+    const fromEvent=e.target&&e.target.closest?e.target.closest('.dirt'):null;
+    if(fromEvent)return fromEvent;
+    const under=document.elementFromPoint(e.clientX,e.clientY);
+    return under&&under.closest?under.closest('.dirt'):null;
   };
-  tbl.addEventListener('pointerdown',e=>{down=true;scrub(document.elementFromPoint(e.clientX,e.clientY))});
-  tbl.addEventListener('pointermove',e=>{if(down)scrub(document.elementFromPoint(e.clientX,e.clientY))});
-  const stop=()=>{if(down){down=false;if(tbl.isConnected)renderProgOnly(j)}};
+  const scrub=el=>{
+    if(!el||!el.classList||!el.classList.contains('dirt')||!st.coverOff)return false;
+    const i=Number(el.dataset.i),dust=st.dirt[i];if(!dust||dust.a<=.02)return false;
+    if(tool==='brush')dust.a-=dust.hard?.035:.12;
+    else if(tool==='cloth')dust.a-=dust.hard?.10:.18;
+    else return false;
+    const opacity=Math.max(0,dust.a);
+    el.setAttribute('opacity',opacity);
+    animateToolAction(el);animate(el);
+    if(opacity<=.02){
+      el.remove();sfx(1500,.025);
+      const cleanliness=Math.max(0,1-st.dirt.reduce((a,y)=>a+Math.max(0,y.a),0)/(st.dirt.length*.75));
+      if(cleanliness>.8)say('Die Platine ist sauber. Prüfe jetzt die Bauteile.');
+    }
+    if(Date.now()-lastCleanAt>200){lastCleanAt=Date.now();save()}
+    return true;
+  };
+  tbl.addEventListener('pointerdown',e=>{
+    if(tool!=='brush'&&tool!=='cloth')return;
+    const dirt=dirtAt(e);if(!dirt||!st.coverOff)return;
+    down=true;
+    try{tbl.setPointerCapture(e.pointerId)}catch(_){}
+    scrub(dirt);e.preventDefault();
+  });
+  tbl.addEventListener('pointermove',e=>{if(down){const dirt=dirtAt(e);if(dirt)scrub(dirt)}});
+  const stop=()=>{if(down){down=false;if(tbl.isConnected){save();renderProgOnly(j)}}};
   tbl.addEventListener('pointerup',stop);tbl.addEventListener('pointercancel',stop);
 }
-function renderProgOnly(j){}
+function renderProgOnly(j){
+  const st=j&&j.st;if(!st)return;
+  const note=$('.repair-note');if(!note)return;
+  const total=(st.dirt||[]).reduce((a,x)=>a+Math.max(0,x.a),0);
+  const max=Math.max(1,(st.dirt||[]).length*.75);
+  const clean=Math.round(Math.max(0,1-total/max)*100);
+  if(st.coverOff&&!st.boardOut){
+    const task=note.querySelector('.note-task'),bar=note.querySelector('.note-progress span'),meta=note.querySelector('.note-meta');
+    if(task)task.textContent='1) Innenraum reinigen: '+clean+'%';
+    if(bar)bar.style.width=clean+'%';
+    if(meta)meta.textContent='Pinsel für Staub, Alkohol-Tuch für hartnäckige Rückstände';
+  }
+}
 function showBits(j){
   const st=j.st,d=DEV[j.dev];
   $('#ovbox').innerHTML=`<h2>Schrauben-Aufsatz</h2><p>Welchen Aufsatz setzt du ein? Ein Blick aufs Gehäuse hilft: Kreuzschlitz klein, Kreuzschlitz mittel oder sechskant-ähnlich?</p><div class="choices">${BITS.map(b=>`<button class="btn alt" data-b="${b}">${b}</button>`).join('')}</div>`;
@@ -1115,84 +1146,99 @@ function attachBoardActions(j){
   add('a_rotate_reset','3D-Ansicht zurücksetzen','alt',()=>{if(st.boardOut){st.boardRotX=21;st.boardRotY=-14}else{st.viewRotX=13;st.viewRotY=-17}renderBench()});
 }
 function attachPinActions(j){
-  const tbl=$('#tbl'),st=j.st;
-  if(!tbl)return;
-  tbl.querySelectorAll('.part-pin').forEach(g=>{
-    g.onclick=e=>{
-      e.stopPropagation();
-      processPartPin(j,g.dataset.p,+g.dataset.pin);
-    };
-  });
-  tbl.querySelectorAll('.micro-pin').forEach(g=>{
-    g.onclick=e=>{
-      e.stopPropagation();
-      processMicroPin(j,g.dataset.micro,+g.dataset.pin);
-    };
-  });
-  tbl.querySelectorAll('.pt').forEach(g=>{
-    g.onclick=()=>{
-      const p=DEV[j.dev].parts.find(x=>x.id===g.dataset.p);
-      if(!st.coverOff||!st.boardOut){
-        sayBench('Für eine genaue Messung musst du die Platine erst ausbauen.');
-        return;
-      }
+  const tbl=$('#tbl'),st=j.st,d=DEV[j.dev],svg=tbl&&tbl.querySelector('#dsv');
+  if(!tbl||!svg)return;
+  tbl.querySelectorAll('.pt,.micro-chip,.smd-chip,.dirt,.part-pin,.micro-pin,.smd-pin').forEach(el=>{el.onclick=null});
+  svg.addEventListener('click',e=>{
+    const hit=e.target&&e.target.closest?e.target.closest('.part-pin,.micro-pin,.smd-pin,.pt,.micro-chip,.smd-chip,.dirt'):null;
+    if(!hit||!svg.contains(hit))return;
+    e.preventDefault();e.stopPropagation();animateToolAction(hit);
+    if(hit.classList.contains('part-pin')){processPartPin(j,hit.dataset.p,Number(hit.dataset.pin));return}
+    if(hit.classList.contains('micro-pin')){processMicroPin(j,hit.dataset.micro,Number(hit.dataset.pin));return}
+    if(hit.classList.contains('smd-pin')){processSmdPin(j,hit.dataset.smd,Number(hit.dataset.pin));return}
+    if(hit.classList.contains('dirt')){
+      if(tool==='ultrasonic'){
+        if(!st.coverOff){sayBench('Öffne zuerst das Gerät und lege die Platine frei.');return}
+        st.dirt.forEach(x=>x.a=0);sfx(420,.2,'sine');sayBench('Ultraschallreinigung abgeschlossen. Feine Verschmutzungen wurden entfernt.');save();renderBench();
+      }else if(tool==='brush'||tool==='cloth')sayBench('Ziehe den Pinsel oder das Alkohol-Tuch über die verschmutzte Fläche.');
+      else sayBench('Wähle Pinsel, Tuch + Alkohol oder das Ultraschallbad zum Reinigen.');
+      return;
+    }
+    if(hit.classList.contains('pt')){
+      const p=d.parts.find(x=>x.id===hit.dataset.p);if(!p)return;
       const state=st.parts[p.id];
+      if(!st.coverOff){sayBench('Erst das Gerät umdrehen, die Schrauben lösen und den Rückdeckel abnehmen.');return}
       if(tool==='meter'){
-        st.checked[p.id]=state==='broken'?'bad':'ok';
-        sayBench(p.label+': '+(state==='broken'?'Defekt erkannt.':'Durchgang in Ordnung.'));
-        sfx(state==='broken'?190:1180,.1);
-        save();
-        renderBench();
-      }else if(tool==='solder'||tool==='hotair'){
-        sayBench('Klicke die einzelnen goldenen Lötpads an. Jede Lötstelle muss separat gelöst werden.');
-      }else{
-        sayBench('Prüfe mit dem Messgerät oder bearbeite die einzelnen Lötpads mit Lötkolben/Heißluft.');
+        if(state==='removed'){sayBench(p.label+': Bauteil fehlt. Hier kann nichts gemessen werden.');return}
+        st.checked[p.id]=state==='broken'?'bad':'ok';sayBench(p.label+': '+(state==='broken'?'Defekt erkannt.':'Durchgang in Ordnung.'));
+        sfx(state==='broken'?190:1180,.1);save();renderBench();return;
       }
-    };
-  });
-  tbl.querySelectorAll('.micro-chip').forEach(g=>{
-    g.onclick=e=>{
-      e.stopPropagation();
-      const m=st.micro.find(x=>x.id===g.dataset.micro);
-      if(!m)return;
+      if(tool==='tweezers'){
+        if(p.attach!=='socket'){sayBench(p.label+' ist verlötet. Dafür brauchst du den Lötkolben und die einzelnen Lötpads.');return}
+        if(state==='removed'){
+          const key=partKey(j.dev,p.id);if(!(S.inv[key]>0)){sayBench('Kein Ersatz für '+p.label+' auf Lager. Bestelle ihn im PC-Shop.');return}
+          S.inv[key]--;st.parts[p.id]='new';const mi=(st.matItems||[]).findIndex(x=>x.id==='socket:'+p.id);if(mi>=0)st.matItems.splice(mi,1);
+          sayBench('Ersatzteil '+p.label+' mit der Pinzette eingesetzt.');sfx(980,.1,'triangle');save();renderTabs();renderBench();return;
+        }
+        if(state==='ok'||state==='broken'||state==='new'){
+          st.parts[p.id]='removed';delete st.checked[p.id];matPush(j,{id:'socket:'+p.id,label:p.label,kind:'socket',partId:p.id,faulty:state==='broken',day:S.day});
+          sayBench(p.label+' vorsichtig aus dem Steckplatz gehoben und auf der Matte abgelegt.');sfx(650,.08);save();renderBench();return;
+        }
+      }
+      if(tool==='solder'||tool==='hotair'){
+        if(!st.boardOut){sayBench('Baue die Platine zuerst aus. Danach kannst du jede goldene Lötstelle einzeln anklicken.');return}
+        sayBench('Klicke die einzelnen goldenen Lötpads am Rand von '+p.label+'. Jeder Kontakt muss separat gelöst werden.');return;
+      }
+      sayBench('Für '+p.label+' kannst du das Messgerät, die Pinzette (bei Steckverbindern) oder Lötkolben/Heißluft an den einzelnen Kontakten nutzen.');
+      return;
+    }
+    if(hit.classList.contains('micro-chip')){
+      const m=(st.micro||[]).find(x=>x.id===hit.dataset.micro);if(!m)return;const info=microInfo(m.type);
+      if(!st.coverOff){sayBench('Öffne zuerst das Gerät, um an die Platine zu kommen.');return}
       if(tool==='chiptest'){
-        m.identified=true;
-        sayBench(m.ref+' erkannt: '+microInfo(m.type).label+'. '+microInfo(m.type).desc+'. Zustand: '+(m.state==='broken'?'DEFEKT':m.state==='removed'?'ausgebaut':m.state==='installing'?'wird eingelötet':'in Ordnung')+'.');
-        sfx(m.state==='broken'?190:1120,.12);
-        save();
-        renderBench();
-      }else if(tool==='microscope'){
-        st.magnifiedChip=m.id;
-        sayBench(m.ref+' unter dem Digitalmikroskop vergrößert. Für die Funktion brauchst du weiterhin den CT-08.');
-        if(g.classList.contains('magnified'))g.classList.remove('magnified');else g.classList.add('magnified');
-      }else if(tool==='meter'){
-        sayBench('Für die eindeutige Chip-Funktion und den Chipnamen nutze den CT-08-Chip-Tester.');
-      }else if(tool==='solder'||tool==='hotair'){
-        sayBench('Nicht auf den Chipkörper drücken: Löte jeden einzelnen Pin am Rand aus.');
+        m.identified=true;sayBench(m.ref+' erkannt: '+info.label+'. '+info.desc+'. Zustand: '+(m.state==='broken'?'DEFEKT':m.state==='removed'?'ausgebaut':m.state==='installing'?'wird eingelötet':'in Ordnung')+'.');
+        sfx(m.state==='broken'?190:1120,.12);save();renderBench();return;
       }
-    };
+      if(tool==='microscope'){
+        st.magnifiedChip=st.magnifiedChip===m.id?null:m.id;sayBench(st.magnifiedChip?m.ref+' wird unter dem Digitalmikroskop vergrößert.':m.ref+' wieder in Normalgröße.');
+        save();renderBench();return;
+      }
+      if(tool==='meter'){sayBench('Das Messgerät zeigt elektrische Werte. Für die genaue Funktion und den Namen brauchst du den CT-08-Chip-Tester.');sfx(m.state==='broken'?180:1080,.08);return}
+      if(tool==='solder'||tool==='hotair'){
+        if(!m.identified){sayBench('Unbekannter Chip '+m.ref+'. Erst mit dem CT-08 identifizieren.');return}
+        sayBench('Löte nicht auf dem Chipkörper: Klicke jeden einzelnen goldenen Pin am Rand.');return;
+      }
+      if(tool==='tweezers'){sayBench(m.ref+' ist fest verlötet. Löse zuerst alle Pins mit dem Lötkolben.');return}
+      sayBench('Mit dem CT-08 identifizierst du '+m.ref+'. Zum Auslöten brauchst du Lötkolben oder Heißluft.');return;
+    }
+    if(hit.classList.contains('smd-chip')){
+      const m=(st.smdParts||[]).find(x=>x.id===hit.dataset.smd);if(!m)return;
+      if(tool==='meter'){
+        st.checkedSmd=st.checkedSmd||{};st.checkedSmd[m.id]=m.state==='broken'?'bad':'ok';
+        sayBench(m.id+': '+m.label+' · '+(m.state==='removed'?'fehlt':m.state==='installing'?'wird verlötet':m.state==='broken'?'defekt':'Wert im Soll.'));
+        sfx(m.state==='broken'?180:1080,.08);save();return;
+      }
+      if(tool==='solder'||tool==='hotair'){sayBench('Löse die zwei goldenen Kontakte von '+m.id+' einzeln. Das Bauteil ist erst nach beiden Pins frei.');return}
+      if(tool==='tweezers'){sayBench(m.id+' ist aufgelötet. Verwende Lötkolben oder Heißluft an beiden Kontakten.');return}
+      sayBench('Wähle das Messgerät zum Prüfen oder den Lötkolben für die einzelnen Kontakte.');
+    }
   });
-  tbl.querySelectorAll('.smd-pin').forEach(g=>{
-    g.onclick=e=>{e.stopPropagation();processSmdPin(j,g.dataset.smd,+g.dataset.pin)};
-  });
-  tbl.querySelectorAll('.smd-chip').forEach(g=>{
-    g.onclick=e=>{
-      e.stopPropagation();const m=(st.smdParts||[]).find(x=>x.id===g.dataset.smd);if(!m)return;
-      if(tool==='meter'){sayBench(m.id+': '+m.label+' · '+(m.state==='removed'?'fehlt':m.state==='installing'?'wird verlötet':m.state==='broken'?'defekt':'Wert im Soll'));sfx(m.state==='broken'?180:1080,.08)}
-      else if(tool==='solder'||tool==='hotair')sayBench('Löse die zwei Kontakte von '+m.id+' einzeln. Erst danach ist das SMD-Bauteil frei.');
-      else sayBench('Mit dem Messgerät kannst du '+m.id+' prüfen. Zum Auslöten braucht es zwei einzelne Lötvorgänge.');
-    };
-  });
-  tbl.querySelectorAll('.dirt').forEach(g=>{
-    g.onclick=()=>{
-      if(tool!=='ultrasonic')return;
-      st.dirt.forEach(x=>x.a=0);
-      sfx(420,.2,'sine');
-      sayBench('Ultraschallreinigung abgeschlossen. Feine Verschmutzungen wurden entfernt.');
-      save();
-      renderBench();
-    };
-  });
+}
+function attachToolCursor(j){
+  const tbl=$('#tbl');if(!tbl)return;
+  let cursor=$('#tool-cursor');
+  if(!cursor){cursor=document.createElement('div');cursor.id='tool-cursor';cursor.className='tool-cursor';cursor.setAttribute('aria-hidden','true');cursor.innerHTML='<span class="tool-cursor-icon"></span><small></small>';tbl.appendChild(cursor)}
+  const selected=TOOLS.find(x=>x.id===tool);
+  cursor.querySelector('.tool-cursor-icon').textContent=selected?selected.icon:'✋';
+  cursor.querySelector('small').textContent=selected?selected.name:'Hand';
+  tbl.onpointermove=e=>{const r=tbl.getBoundingClientRect();cursor.style.left=(e.clientX-r.left)+'px';cursor.style.top=(e.clientY-r.top)+'px';cursor.classList.add('visible')};
+  tbl.onpointerleave=()=>cursor.classList.remove('visible');
+  tbl.onpointerdown=()=>{cursor.classList.remove('is-working');void cursor.offsetWidth;cursor.classList.add('is-working')};
+}
+function animateToolAction(target){
+  const cursor=$('#tool-cursor');
+  if(cursor){cursor.classList.remove('is-working');void cursor.offsetWidth;cursor.classList.add('is-working')}
+  if(target&&target.classList){target.classList.remove('tool-contact');void target.getBoundingClientRect();target.classList.add('tool-contact');setTimeout(()=>target.classList.remove('tool-contact'),320)}
 }
 function enhanceBench(){
   const j=benchJob();if(!j||!j.st)return;prepareBenchState(j);
@@ -1203,7 +1249,7 @@ function enhanceBench(){
     b.title=locked?`Wird nach ${t.unlock} abgeholten Reparaturen freigeschaltet`:t.sub;
   });
   const head=$('.bench > .row');if(head&&!$('#bench-controls')){const controls=document.createElement('div');controls.id='bench-controls';controls.className='bench-controls';controls.innerHTML='<span class="tag">3D: Ziehe auf einer freien Stelle zum Drehen</span><span class="tag">SMD: jeden Pin einzeln löten</span><span class="tag">Schrauben: 3 Sekunden halten</span>';head.insertAdjacentElement('afterend',controls)}
-  attachScrewHold(j);attachPinActions(j);attachBoardActions(j);attach3DRotation(j);drawMatExtras(j);
+  attachScrewHold(j);attachPinActions(j);attachBoardActions(j);attach3DRotation(j);attachToolCursor(j);drawMatExtras(j);
   const closeBtn=$('#a_on');
   if(closeBtn){
     const baseClose=closeBtn.onclick;
