@@ -951,7 +951,7 @@ function smdPinLayer(j){
   (j.st.smdParts||[]).forEach(m=>{
     [[m.x-1,m.y+m.h/2],[m.x+m.w+1,m.y+m.h/2]].forEach((q,i)=>{
       const loose=!!(m.pinOut||[])[i];
-      s+=`<g class="smd-pin" data-smd="${m.id}" data-pin="${i}" aria-label="${m.id} Lötstelle ${i+1}"><rect class="pin-metal" x="${q[0]-1.1}" y="${q[1]-1.3}" width="2.2" height="2.6" fill="${loose?'#765c38':'#dbc17b'}" stroke="#3c321f" stroke-width=".4"/><rect class="pin-hit" x="${q[0]-4.5}" y="${q[1]-4.5}" width="9" height="9"/></g>`;
+      s+=`<g class="smd-pin" data-smd="${m.id}" data-pin="${i}" aria-label="${m.id} Lötstelle ${i+1}"><rect class="pin-metal" x="${q[0]-1.1}" y="${q[1]-1.3}" width="2.2" height="2.6" fill="${loose?'#765c38':'#dbc17b'}" stroke="#3c321f" stroke-width=".4"/><rect class="pin-hit" x="${q[0]-2.7}" y="${q[1]-2.7}" width="5.4" height="5.4"/></g>`;
     });
   });
   return s;
@@ -1008,11 +1008,11 @@ function partPinLayer(j){
   const st=j.st,d=DEV[j.dev];let out='';
   d.parts.forEach(p=>{
     const n=partPinCount(p),states=st.joints[p.id]||Array(n).fill(false),pos=pinPositions(p,n);
-    pos.forEach((q,i)=>{const loose=!!states[i];out+=`<g class="part-pin" data-p="${p.id}" data-pin="${i}" aria-label="${p.label} Lötstelle ${i+1}"><circle class="pin-metal" cx="${q.x}" cy="${q.y}" r="2.4" fill="${loose?'#765c38':'#e2c477'}" stroke="#29251d" stroke-width=".7"/><rect class="pin-hit" x="${q.x-4.5}" y="${q.y-4.5}" width="9" height="9"/></g>`});
+    pos.forEach((q,i)=>{const loose=!!states[i];out+=`<g class="part-pin" data-p="${p.id}" data-pin="${i}" aria-label="${p.label} Lötstelle ${i+1}"><circle class="pin-metal" cx="${q.x}" cy="${q.y}" r="2.4" fill="${loose?'#765c38':'#e2c477'}" stroke="#29251d" stroke-width=".7"/><rect class="pin-hit" x="${q.x-2.8}" y="${q.y-2.8}" width="5.6" height="5.6"/></g>`});
   });
   (st.micro||[]).forEach(m=>{
     const n=microPinCount(m),half=n/2,states=m.pinOut||Array(n).fill(false);
-    for(let i=0;i<n;i++){const row=i<half?0:1,idx=i%half,x=m.x+1+(m.w-2)*(half===1?.5:idx/(half-1)),y=row===0?m.y-2.6:m.y+m.h+2.6,loose=!!states[i];out+=`<g class="micro-pin" data-micro="${m.id}" data-pin="${i}" aria-label="${m.ref} Pin ${i+1}"><rect class="pin-metal" x="${x-1.4}" y="${y-1.1}" width="2.8" height="2.2" rx=".45" fill="${loose?'#685033':'#d9c17f'}" stroke="#332a1b" stroke-width=".35"/><rect class="pin-hit" x="${x-4.2}" y="${y-4}" width="8.4" height="8"/></g>`}
+    for(let i=0;i<n;i++){const row=i<half?0:1,idx=i%half,x=m.x+1+(m.w-2)*(half===1?.5:idx/(half-1)),y=row===0?m.y-2.6:m.y+m.h+2.6,loose=!!states[i];out+=`<g class="micro-pin" data-micro="${m.id}" data-pin="${i}" aria-label="${m.ref} Pin ${i+1}"><rect class="pin-metal" x="${x-1.4}" y="${y-1.1}" width="2.8" height="2.2" rx=".45" fill="${loose?'#685033':'#d9c17f'}" stroke="#332a1b" stroke-width=".35"/><rect class="pin-hit" x="${x-1.35}" y="${y-2.25}" width="2.7" height="4.5"/></g>`}
   });
   return out;
 }
