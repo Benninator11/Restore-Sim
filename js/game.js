@@ -66,9 +66,33 @@ DEV.minidisc.screwLocs=[[32,34],[368,34],[32,266],[368,266],[200,26],[200,274]];
 DEV.router.screwLocs=[[28,28],[372,28],[28,272],[372,272],[130,25],[270,25],[130,275],[270,275]];
 
 
+Object.assign(DEV,{
+  cassette:{name:'Nami Cassette Player',color:'#b7b2a5',form:'mp3',width:285,screws:4,bit:'Ph0',fee:5800,parts:[
+    {id:'motor',label:'Capstan-Motor',x:55,y:55,w:105,h:85},{id:'belt',label:'Antriebsriemen',x:190,y:45,w:90,h:72},{id:'battery',label:'Akku-Pack',x:48,y:180,w:110,h:48},{id:'jack',label:'Kopfhörerbuchse',x:190,y:180,w:75,h:45}]},
+  discman:{name:'Aki Portable CD',color:'#9ca8b5',form:'disc',width:350,screws:6,bit:'Ph1',fee:7800,parts:[
+    {id:'laser',label:'Laser-Einheit',x:120,y:48,w:150,h:100},{id:'motor',label:'Spindelmotor',x:55,y:175,w:90,h:75},{id:'battery',label:'Akku-Pack',x:250,y:185,w:100,h:42},{id:'board',label:'Audio-Platine',x:270,y:65,w:82,h:90},{id:'jack',label:'Kopfhörerbuchse',x:55,y:250,w:75,h:25}]},
+  pockettv:{name:'Kitsune Pocket TV',color:'#687a82',form:'pockettv',width:380,screws:6,bit:'Ph1',fee:9200,parts:[
+    {id:'screen',label:'LCD-Bildschirm',x:68,y:28,w:210,h:125},{id:'tuner',label:'TV-Tuner',x:285,y:40,w:75,h:78},{id:'antenna',label:'Teleskopantenne',x:300,y:155,w:55,h:90},{id:'battery',label:'Akku-Pack',x:75,y:190,w:135,h:48},{id:'board',label:'Empfängerplatine',x:220,y:190,w:95,h:55}]},
+  calculator:{name:'Tama Graph Calculator',color:'#a7aa9e',form:'calculator',portrait:true,width:205,screws:4,bit:'Ph0',fee:6200,parts:[
+    {id:'screen',label:'LCD-Anzeige',x:112,y:35,w:175,h:65},{id:'keypad',label:'Tastenfeld',x:100,y:125,w:195,h:120},{id:'battery',label:'Knopfzellen-Pack',x:45,y:220,w:48,h:35},{id:'board',label:'Rechenplatine',x:145,y:255,w:120,h:28}]},
+  printer:{name:'Neko Pocket Photo Printer',color:'#d1c3ad',form:'printer',width:440,screws:6,bit:'Ph1',fee:10300,parts:[
+    {id:'psu',label:'Netzteilmodul',x:45,y:65,w:90,h:70},{id:'motor',label:'Papiervorschubmotor',x:165,y:55,w:105,h:80},{id:'board',label:'Steuerplatine',x:285,y:55,w:100,h:85},{id:'paper',label:'Papierzuführung',x:70,y:185,w:135,h:55},{id:'usb',label:'USB-Buchse',x:290,y:205,w:60,h:38}]},
+  alarmclock:{name:'Hoshi Digital Alarm',color:'#6a7680',form:'clock',width:390,screws:4,bit:'Ph0',fee:6400,parts:[
+    {id:'screen',label:'Segmentanzeige',x:75,y:45,w:235,h:75},{id:'speaker',label:'Signalgeber',x:65,y:165,w:90,h:80},{id:'battery',label:'Backup-Batterie',x:180,y:175,w:95,h:42},{id:'board',label:'Uhrplatine',x:285,y:160,w:75,h:80}]},
+  photoalbum:{name:'Momo Digital Photo Frame',color:'#927a68',form:'photoalbum',width:420,screws:6,bit:'Ph1',fee:8500,parts:[
+    {id:'screen',label:'LCD-Panel',x:70,y:32,w:260,h:155},{id:'board',label:'Bildsteuerung',x:275,y:205,w:95,h:54},{id:'memory',label:'Speichermodul',x:55,y:210,w:92,h:40},{id:'speaker',label:'Mini-Lautsprecher',x:165,y:215,w:72,h:42},{id:'charging',label:'Strombuchse',x:345,y:60,w:38,h:35}]},
+  remote:{name:'Kobito Universal Remote',color:'#454958',form:'remote',portrait:true,width:205,screws:4,bit:'Ph0',fee:4700,parts:[
+    {id:'keypad',label:'Tastenmatte',x:115,y:45,w:170,h:105},{id:'board',label:'IR-Steuerplatine',x:125,y:165,w:150,h:65},{id:'battery',label:'Batteriefach',x:35,y:205,w:65,h:40},{id:'sensor',label:'Infrarot-Sender',x:140,y:250,w:100,h:30}]}
+});
 const partKey=(t,p)=>t+':'+p;
 const partPrice=(t,p)=>Math.round(DEV[t].fee*0.28/100)*100+(p.length%3)*200;
 const SYMPTOM={screen:'Bild bleibt schwarz',battery:'Geht nach Sekunden aus',btn:'Tasten reagieren nicht',psu:'Kein Lebenszeichen',laser:'Liest keine Discs',fan:'Wird extrem laut und heiß',speaker:'Kein Ton',keypad:'Tasten klemmen',motor:'Disc dreht nicht',jack:'Kopfhörer knistern',sensor:'Fotos sind schwarz',flash:'Blitz lädt nicht',tuner:'Nur Rauschen',capacitor:'Brummt laut',camera:'Kamera zeigt nur schwarz',charging:'Akku lädt nicht',board:'Startet unregelmäßig',trackpad:'Touchpad reagiert nicht',stick:'Steuerknüppel driftet',usb:'USB-Verbindung bricht ab',antenna:'Verbindung bricht ständig ab',lens:'Autofokus funktioniert nicht'};
+Object.assign(SYMPTOM,{
+  belt:'Kassette leiert oder bleibt stehen',
+  paper:'Papier wird nicht eingezogen',
+  memory:'Fotos lassen sich nicht speichern'
+});
+
 const TOOLS=[
   {id:'driver',icon:'🪛',name:'Schraubenzieher',sub:'Schrauben lösen / eindrehen'},
   {id:'tweezers',icon:'🗜️',name:'Pinzette',sub:'Kleine Stecker und Clips'},
@@ -738,6 +762,9 @@ const ART_DEFS=`<defs>
 function partArt(p,t){
   const {x,y,w,h}=p,cx=x+w/2,cy=y+h/2,r=Math.min(w,h)/2;
   switch(p.id){
+  case 'belt':return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#343238" stroke="#090a0d" stroke-width="2"/><ellipse cx="${x+w*.28}" cy="${cy}" rx="${Math.min(w,h)*.22}" ry="${Math.min(w,h)*.4}" fill="none" stroke="#c6b58b" stroke-width="3"/><ellipse cx="${x+w*.72}" cy="${cy}" rx="${Math.min(w,h)*.22}" ry="${Math.min(w,h)*.4}" fill="none" stroke="#c6b58b" stroke-width="3"/>`;
+  case 'paper':{let lines='';for(let i=1;i<5;i++)lines+=`<line x1="${x+7}" y1="${y+i*h/5}" x2="${x+w-7}" y2="${y+i*h/5}" stroke="#95a5a2" stroke-width="1"/>`;return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#eee9d8" stroke="#5b625e" stroke-width="2"/>${lines}<path d="M${x+w-15} ${y+3}l10 10h-10z" fill="#c5bda8"/>`;}
+  case 'memory':return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#151e27" stroke="#c7a85b" stroke-width="2"/><rect x="${x+7}" y="${y+6}" width="${w-14}" height="${h-12}" fill="#273d32" stroke="#71957a" stroke-width="1"/><text x="${cx}" y="${cy+4}" font-size="10" text-anchor="middle" fill="#d8c27c">FLASH</text>`;
   case 'screen':return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="url(#glass)" stroke="#05070d" stroke-width="3"/><polygon points="${x+8},${y+4} ${x+w*.55},${y+4} ${x+w*.3},${y+h-4} ${x+8},${y+h-4}" fill="#fff" opacity=".1"/><rect x="${x+w*.3}" y="${y+h}" width="${w*.4}" height="10" fill="#b9733a"/>`;
   case 'battery':return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="5" fill="#2a2f3b" stroke="#0b0d12" stroke-width="2"/><rect x="${x+6}" y="${y+6}" width="${w-12}" height="${h-12}" rx="3" fill="url(#met)"/><rect x="${x+6}" y="${y+h*.4}" width="${w-12}" height="${h*.2}" fill="#2c5ee0"/><rect x="${x-5}" y="${y+h*.3}" width="6" height="${h*.4}" fill="#d8b24a"/><text x="${x+w-10}" y="${y+h*.2+4}" fill="#222" font-size="9" text-anchor="end" font-family="monospace">3.7V Li-ion</text>`;
   case 'btn':case 'keypad':{let s=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#2e3140" stroke="#0b0d12" stroke-width="2"/>`;const cols=Math.floor(w/22),rows=Math.floor(h/20);for(let i=0;i<cols;i++)for(let k=0;k<rows;k++){s+=`<circle cx="${x+(w/cols)*(i+.5)}" cy="${y+(h/rows)*(k+.5)}" r="6" fill="#d9d4cb"/><circle cx="${x+(w/cols)*(i+.5)-1.5}" cy="${y+(h/rows)*(k+.5)-1.5}" r="2.6" fill="#fff" opacity=".6"/>`}return s}
@@ -762,6 +789,14 @@ function partArt(p,t){
 function deviceShape(d){
   const forms={
     handheld:'M38 8H362Q392 8 392 38V262Q392 292 362 292H38Q8 292 8 262V38Q8 8 38 8Z',
+    disc:'M55 5H345Q395 5 395 55V245Q395 295 345 295H55Q5 295 5 245V55Q5 5 55 5Z',
+    pockettv:'M35 20H365Q385 20 385 40V260Q385 280 365 280H35Q15 280 15 260V40Q15 20 35 20Z',
+    calculator:'M85 5H315Q360 5 360 50V250Q360 295 315 295H85Q40 295 40 250V50Q40 5 85 5Z',
+    printer:'M55 30H345Q385 30 385 70V230Q385 270 345 270H55Q15 270 15 230V70Q15 30 55 30Z',
+    clock:'M70 5H330Q385 5 385 60V240Q385 295 330 295H70Q15 295 15 240V60Q15 5 70 5Z',
+    photoalbum:'M35 8H365Q395 8 395 38V262Q395 292 365 292H35Q5 292 5 262V38Q5 8 35 8Z',
+    remote:'M125 8H275Q325 8 325 58V242Q325 292 275 292H125Q75 292 75 242V58Q75 8 125 8Z',
+
     console:'M18 38Q18 10 48 10H352Q382 10 382 38V262Q382 290 352 290H48Q18 290 18 262Z',
     phone:'M80 45H320Q370 45 370 95V205Q370 255 320 255H80Q30 255 30 205V95Q30 45 80 45Z',
     mp3:'M85 8H315Q365 8 365 58V242Q365 292 315 292H85Q35 292 35 242V58Q35 8 85 8Z',
