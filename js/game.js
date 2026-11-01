@@ -284,6 +284,7 @@ function renderTabs(){
 }
 function go(t){
   tab=t||tab;
+  document.body.classList.toggle('workbench-active',tab==='bench');
   if(tab!=='shop'&&window.KuronekoShop3D)window.KuronekoShop3D.hide();
   ['shop','jobs','bench','pc'].forEach(k=>$('#st-'+k).hidden=(k!==tab));
   renderHud();renderTabs();
@@ -581,29 +582,55 @@ function renderBench(){
   if(st.coverOff&&!st.boardOut){todoTitle='Internal Assembly';todoAction='Remove motherboard';todoValue=0;todoMeta='Clips lösen und die Platine vorsichtig anheben';}
   if(st.boardOut){todoTitle='Motherboard';todoAction='Identify & resolder';todoValue=Math.round(identified.length/Math.max(1,st.micro.length)*100);todoMeta=identified.length+'/'+st.micro.length+' ICs mit dem CT-08 getestet';}
   if(st.closing){todoTitle='Reassembly';todoAction='Secure the case';todoValue=Math.round((d.screws-screwsDone)/Math.max(1,d.screws)*100);todoMeta=(d.screws-screwsDone)+'/'+d.screws+' Schrauben eingesetzt';}
-  const stageWidth=st.boardOut?800:(d.portrait?330:460);
+  const stageWidth=st.boardOut?1120:(d.portrait?560:980);
   const stageRatio=st.boardOut?'4 / 3':d.portrait?'3 / 4':'4 / 3';
+  const stageClass=['device3d-stage',d.portrait&&!st.boardOut?'device-portrait':'',st.boardOut?'board-device-stage':''].filter(Boolean).join(' ');
   const todoMarkup=`<aside class="repair-note" aria-label="Reparaturaufgaben"><div class="note-rings"></div><div class="note-heading">To-do list:</div><div class="note-device">${todoTitle}</div><div class="note-task">1) ${todoAction}: ${todoValue}%</div><div class="note-progress"><span style="width:${todoValue}%"></span></div><div class="note-meta">${todoMeta}</div><div class="note-rule"></div><div class="note-check">${st.tested?'✓ Funktionstest abgeschlossen':'○ Reparatur in Arbeit'}</div></aside>`;
-  el.innerHTML=`<div class="row" style="align-items:center;justify-content:space-between"><div><h2>${d.name} (${j.name})</h2><span class="tag">${side}</span><span class="tag">Schraubenkopf: ${d.bit}</span></div><div><button class="btn alt" id="bq">Anderes Gerät</button></div></div>${stepsHtml}
-  <div class="bench"><div class="tools" id="tools">${TOOLS.map(t=>`<button data-t="${t.id}" aria-pressed="${tool===t.id}"><span class="tool-icon">${t.icon}</span><span>${t.name}<small>${t.sub}</small></span></button>`).join('')}</div>
-  <div class="workstation"><div class="bench-gear"><span class="work-lamp"><i></i> LED-LUPENLAMPE</span><span class="esd-chip">⏚ ESD-SCHUTZMATTE</span><span class="bench-clock">PRECISION REPAIR · 2005</span></div>
-  <div class="table" id="tbl">
-    <div class="bench-props" aria-hidden="true">
-      <div class="prop-tray"><span>🔩</span><span>▰</span><span>◉</span><span>⌁</span><b>PARTS TRAY</b></div>
-      <div class="prop-mouse"><i></i></div>
-      <div class="prop-cup"><i></i><i></i><i></i><i></i><b></b></div>
-      <div class="prop-paper"><span>REPAIR NOTES</span><i></i><i></i></div>
-      <div class="prop-driver"></div>
-    </div>
-    <div class="device3d-stage" id="device3d-stage" style="width:min(100%,${stageWidth}px);aspect-ratio:${stageRatio}"><div class="device3d-canvas" id="device3d-canvas"></div><div class="device-hit-layer" id="device-hit-layer">${deviceSvg(j,clean)}</div></div>
-    ${todoMarkup}
+  el.innerHTML=`<div class="bench-head">
+    <div class="bench-head-brand"><small>KURONEKO REPAIR · PRECISION SERVICE</small><h2>${d.name}</h2><span>${j.name} · ${side} · ${d.bit}</span></div>
+    <div class="bench-head-status"><span>DAY ${S.day}</span><span>ESD SAFE</span><span>2005</span></div>
+    <button class="bench-exit" id="bq" type="button" aria-label="Werkbank schließen" title="Werkbank schließen">×</button>
   </div>
-  <div class="bench-drawer"><div class="bench-well"><b>Magnetschale</b><span class="screws">● ● ● ●</span></div><div class="bench-well"><b>Bauteilablage</b><span>▰ ▪ ▰ ▪</span></div><div class="bench-well"><b>Reiniger</b><span class="chemical">IPA · Mikrofasertuch</span></div><div class="bench-well"><b>IC-Teststation · CT-08</b><span>🔬 U01–U18 einzeln prüfen</span></div></div>
-  <div class="chip-log"><b>Chip-Testprotokoll · ${identified.length}/${st.micro.length} erkannt</b><div class="chip-log-list">${chipLogHtml}</div></div><div class="hint" id="hint">${hintTxt||'Nimm das Gerät zuerst in die Hand und drehe es um.'}</div><div class="row" id="acts"></div></div></div>`;
-  $('#bq').onclick=()=>go('jobs');
+  ${stepsHtml}
+  <div class="bench">
+    <div class="tools" id="tools">${TOOLS.map(t=>`<button data-t="${t.id}" aria-pressed="${tool===t.id}"><span class="tool-icon">${t.icon}</span><span class="tool-name">${t.name}<small>${t.sub}</small></span></button>`).join('')}</div>
+    <div class="workstation">
+      <div class="bench-gear"><span class="work-lamp"><i></i> LED MAGNIFIER</span><span class="esd-chip">⏚ ANTI-STATIC ESD MAT</span><span class="bench-clock">TOKYO · 09:08</span></div>
+      <div class="table" id="tbl">
+        <div class="bench-props" aria-hidden="true">
+          <div class="prop-mouse"><i></i></div>
+          <div class="prop-cup"><i></i><i></i><i></i><i></i><b></b></div>
+          <div class="prop-paper"><span>REPAIR NOTES</span><i></i><i></i><i></i></div>
+          <div class="prop-driver"></div>
+          <div class="prop-solder"></div>
+        </div>
+        <div class="bench-view-controls">
+          <span class="view-control-hint">Object rotation</span>
+          <button type="button" id="bench-rotate-left" title="Rotate left" aria-label="Rotate left">↶</button>
+          <button type="button" id="bench-rotate-right" title="Rotate right" aria-label="Rotate right">↷</button>
+          <span class="view-control-hint">Zoom</span>
+          <button type="button" id="bench-zoom-out" title="Zoom out" aria-label="Zoom out">−</button>
+          <button type="button" id="bench-zoom-in" title="Zoom in" aria-label="Zoom in">+</button>
+          <button type="button" id="a_rotate_reset" title="Reset view">Reset</button>
+        </div>
+        <div class="device3d-stage ${stageClass}" id="device3d-stage" style="width:min(100%,${stageWidth}px);aspect-ratio:${stageRatio}"><div class="device3d-canvas" id="device3d-canvas"></div><div class="device-hit-layer" id="device-hit-layer">${deviceSvg(j,clean)}</div></div>
+        <div class="bench-drawer"><div class="bench-well"><b>MAGNETIC SCREW TRAY</b><span class="screws">● ● ● ●</span></div><div class="bench-well"><b>COMPONENTS</b><span>▰ ▪ ◉ ▰</span></div><div class="bench-well"><b>CLEANING</b><span class="chemical">IPA · MICROFIBER</span></div><div class="bench-well"><b>IC TESTER</b><span>CT-08 · U01–U18</span></div></div>
+        ${todoMarkup}
+      </div>
+      <div class="chip-log"><b>Chip-test log · ${identified.length}/${st.micro.length} identified</b><div class="chip-log-list">${chipLogHtml}</div></div>
+      <div class="hint" id="hint">${hintTxt||'Use the hand tool to turn the device over.'}</div>
+      <div class="row bench-actions" id="acts"></div>
+    </div>
+  </div>`;  $('#bq').onclick=()=>go('jobs');
   $('#tools').querySelectorAll('button').forEach(b=>b.onclick=()=>{tool=b.dataset.t;sfx(500,.04);renderBench()});
   wireBench(j,clean);
   if(window.Kuroneko3D)window.Kuroneko3D.mount(j);
+  const rotate=delta=>{if(window.Kuroneko3D&&window.Kuroneko3D.rotatePlane)window.Kuroneko3D.rotatePlane(delta)};
+  const zoom=factor=>{if(window.Kuroneko3D&&window.Kuroneko3D.zoomBy)window.Kuroneko3D.zoomBy(factor)};
+  $('#bench-rotate-left').onclick=()=>rotate(-15);
+  $('#bench-rotate-right').onclick=()=>rotate(15);
+  $('#bench-zoom-in').onclick=()=>zoom(1.14);
+  $('#bench-zoom-out').onclick=()=>zoom(.88);
 }
 function wireBench(j,clean){
   const st=j.st,d=DEV[j.dev],tbl=$('#tbl'),acts=$('#acts');
@@ -1200,20 +1227,29 @@ function matPush(j,item){
 }
 function matItemLabel(item){return item.label+(item.faulty?' · defekt':'')}
 function drawMatExtras(j){
-  const st=j.st,host=$('.workstation');if(!host)return;
+  const st=j.st,host=$('#tbl');if(!host)return;
   const old=$('#bench-extra');if(old)old.remove();
   const panel=document.createElement('div');panel.id='bench-extra';panel.className='bench-extra';
   const items=st.matItems||[];
-  panel.innerHTML=`<div class="mat-panel"><h3>ESD-Matte · Teileablage <span class="muted">(${items.length} Teile)</span></h3><div class="mat-surface" id="mat-surface">${items.length?items.map(x=>`<div class="mat-part ${st.selectedMatId===x.id?'selected':''}" draggable="true" data-matid="${x.id}" title="Auf der Matte abgelegt"><span>▰ ${matItemLabel(x)}</span><button type="button" data-throw="${x.id}" title="In den Mülleimer">×</button></div>`).join(''):'<span class="mat-empty">Ausgelötete Teile erscheinen hier. Ziehe sie zum Sortieren über die Matte.</span>'}</div><div class="bench-status-row"><span class="tag">${(st.screwsInBowl||[]).filter(Boolean).length}/${dScrews(j)} Schrauben in der Magnetschale</span><span class="tag">${(st.trashItems||[]).length} Teile entsorgt</span><span class="tag">Platine: ${st.boardOut?'ausgebaut':'eingesetzt'}</span></div></div><div class="trash-panel"><h3>🗑 Mülleimer für defekte Teile</h3><div class="trash-bin" id="trash-bin" title="Defekte Teile hier hineinziehen"><span style="font-size:27px">🗑</span><b>Defekte Teile entsorgen</b><span class="trash-count">${(st.trashItems||[]).length} Teile im Eimer</span></div><small class="muted">Nur vollständig ausgebaute Teile können entsorgt werden. Gute Ersatzteile solltest du behalten.</small></div>`;
+  panel.innerHTML=`<div class="mat-panel">
+    <div class="mat-tray-heading"><b>PARTS TRAY</b><span>${items.length} loose</span></div>
+    <div class="mat-surface" id="mat-surface">${items.length?items.map(x=>`<div class="mat-part ${st.selectedMatId===x.id?'selected':''}" draggable="true" data-matid="${x.id}" title="Loose component"><span>${matItemLabel(x)}</span><button type="button" data-throw="${x.id}" title="Discard part">×</button></div>`).join(''):'<span class="tray-spare screw-a">●</span><span class="tray-spare chip-a">▰</span><span class="tray-spare screw-b">●</span><span class="tray-spare socket-a">◉</span><span class="mat-empty">Removed parts appear here</span>'}</div>
+  </div>
+  <div class="trash-panel"><h3>TRASH</h3><button class="trash-bin" id="trash-bin" type="button" title="Discard selected damaged part"><span>▤</span><small>${(st.trashItems||[]).length} parts</small></button></div>`;
   host.appendChild(panel);
-  const surf=$('#mat-surface'),bin=$('#trash-bin');
+  const bin=$('#trash-bin');
   panel.querySelectorAll('.mat-part').forEach(el=>{
-    el.addEventListener('click',e=>{if(e.target.closest('[data-throw]'))return;st.selectedMatId=el.dataset.matid;panel.querySelectorAll('.mat-part').forEach(x=>x.classList.toggle('selected',x===el));sayBench('Teil auf der Matte ausgewählt. Du kannst es zum Mülleimer ziehen.');save()});
+    el.addEventListener('click',e=>{if(e.target.closest('[data-throw]'))return;st.selectedMatId=el.dataset.matid;panel.querySelectorAll('.mat-part').forEach(x=>x.classList.toggle('selected',x===el));sayBench('Loose part selected. Drag it to the trash bin to discard it.');save()});
     el.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',el.dataset.matid);if(bin)bin.classList.add('drag-over')});
     el.addEventListener('dragend',()=>bin&&bin.classList.remove('drag-over'));
   });
   panel.querySelectorAll('[data-throw]').forEach(b=>b.onclick=()=>throwMatItem(j,b.dataset.throw));
-  if(bin){bin.addEventListener('dragover',e=>{e.preventDefault();bin.classList.add('drag-over')});bin.addEventListener('dragleave',()=>bin.classList.remove('drag-over'));bin.addEventListener('drop',e=>{e.preventDefault();bin.classList.remove('drag-over');throwMatItem(j,e.dataTransfer.getData('text/plain'))});bin.addEventListener('click',()=>{if(st.selectedMatId)throwMatItem(j,st.selectedMatId);else sayBench('Wähle zuerst ein Teil auf der ESD-Matte aus.')})}
+  if(bin){
+    bin.addEventListener('dragover',e=>{e.preventDefault();bin.classList.add('drag-over')});
+    bin.addEventListener('dragleave',()=>bin.classList.remove('drag-over'));
+    bin.addEventListener('drop',e=>{e.preventDefault();bin.classList.remove('drag-over');throwMatItem(j,e.dataTransfer.getData('text/plain'))});
+    bin.addEventListener('click',()=>{if(st.selectedMatId)throwMatItem(j,st.selectedMatId);else sayBench('Select a loose part on the tray first.')});
+  }
 }
 function dScrews(j){return DEV[j.dev].screws}
 function sayBench(t){hintTxt=t;const h=$('#hint');if(h)h.textContent=t}

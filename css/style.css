@@ -798,3 +798,149 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
  .table:has(.board-view) .device3d-stage{left:auto!important;top:auto!important;width:min(100%,690px)!important}
  .repair-note{width:176px;min-height:134px;right:6px;bottom:8px}
 }
+
+/* ===== FULLSCREEN RESTORY-STYLE REPAIR WORKBENCH ===== */
+body.workbench-active{overflow:hidden;background:#21170f}
+body.workbench-active #hud,body.workbench-active #tabs,body.workbench-active #st-shop,body.workbench-active #st-jobs,body.workbench-active #st-pc{display:none!important}
+body.workbench-active #st-bench{position:fixed!important;inset:0!important;z-index:90!important;width:100vw!important;max-width:none!important;height:100dvh!important;margin:0!important;padding:10px 14px 12px!important;overflow:hidden!important;border:0!important;border-radius:0!important;min-height:0!important;background:radial-gradient(ellipse at 50% 15%,#5e4028 0,#302117 58%,#170f0a 100%)!important;color:#f1e0c8}
+body.workbench-active #st-bench[hidden]{display:none!important}
+body.workbench-active .bench-head{position:relative;display:flex;align-items:center;gap:12px;height:48px;margin:0 2px 7px;padding:0 56px 0 4px;border-bottom:1px solid #9a704b99}
+body.workbench-active .bench-head-brand{display:flex;flex-direction:column;min-width:0}
+body.workbench-active .bench-head-brand small{color:#c5a47d;font:9px monospace;letter-spacing:.18em}
+body.workbench-active .bench-head-brand h2{margin:1px 0 0;color:#f8e8d0;font:bold 17px Georgia,serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+body.workbench-active .bench-head-brand span{font:10px Georgia,serif;color:#d7c09e}
+body.workbench-active .bench-head-status{display:flex;gap:7px;margin-left:auto}
+body.workbench-active .bench-head-status span{padding:4px 7px;border:1px solid #95704d66;background:#34261c;color:#cfb18a;font:9px monospace;letter-spacing:.08em}
+body.workbench-active .bench-exit{position:absolute;right:2px;top:3px;display:grid;place-items:center;width:30px;height:30px;border:1px solid #f0dfc5;border-radius:50%;background:linear-gradient(#f5ead7,#c8b89f);color:#382719;font:20px Arial,sans-serif;line-height:1;box-shadow:0 2px 6px #0008}
+body.workbench-active .bench-exit:hover{background:#fff2db;transform:scale(1.05)}
+body.workbench-active .prog{display:none!important}
+body.workbench-active .bench{height:calc(100dvh - 66px);min-height:0;display:grid;grid-template-columns:64px minmax(0,1fr);gap:9px}
+body.workbench-active .tools{width:64px;min-width:64px;height:100%;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;flex-wrap:nowrap;gap:6px;padding:7px 5px;border:1px solid #8b6949;border-radius:5px;background:linear-gradient(180deg,#4b392b,#211a15);box-shadow:inset 0 1px #fff2,0 5px 12px #0008}
+body.workbench-active .tools button{min-height:57px;flex:0 0 auto;width:100%;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:1px solid #8a725c;border-radius:4px;background:linear-gradient(#514335,#30261e);color:#f2e3cb;text-align:center;transform:none;font:9px Georgia,serif}
+body.workbench-active .tools button[aria-pressed="true"]{border-color:#f0cf8b;background:linear-gradient(#8c6743,#4e3827);box-shadow:0 0 0 1px #f1d29566,inset 0 1px #fff5}
+body.workbench-active .tools button:hover{border-color:#e0bd87;transform:none}
+body.workbench-active .tool-icon{display:grid;place-items:center;min-width:28px;width:28px;height:27px;border:1px solid #8e785f;border-radius:3px;background:#242b2c;color:#e7d5b8;font-size:17px}
+body.workbench-active .tools button .tool-name{font-size:9px;line-height:1.1}
+body.workbench-active .tools button small{display:none}
+body.workbench-active .workstation{height:100%;min-height:0;overflow:hidden;position:relative;display:flex;flex-direction:column;gap:5px;padding:7px;border:2px solid #705039;border-radius:5px;background:repeating-linear-gradient(2deg,#ffffff08 0 2px,transparent 2px 10px),linear-gradient(115deg,#805436,#4c3020 65%,#39251a);box-shadow:inset 0 2px #f7d5a355,0 8px 18px #0009}
+body.workbench-active .bench-gear{flex:0 0 27px;min-height:27px;margin:0;padding:4px 11px;display:flex;align-items:center;justify-content:space-between;gap:8px;border:1px solid #554b3d;border-bottom:3px solid #25201c;border-radius:3px;background:linear-gradient(#58534d,#2d2925);color:#e5d3b7;font:9px monospace;letter-spacing:.12em}
+body.workbench-active .work-lamp i{width:22px;height:8px}
+body.workbench-active .table{flex:1 1 auto;min-height:0;height:auto;width:100%;margin:0;padding:0;position:relative;display:block;overflow:hidden;isolation:isolate;border:10px solid #76543a;border-radius:3px;background-color:#315f81!important;background-image:radial-gradient(ellipse at 48% 38%,#a9c8dc55,transparent 60%),repeating-linear-gradient(0deg,#e5eef033 0 1px,transparent 1px 32px),repeating-linear-gradient(90deg,#e5eef033 0 1px,transparent 1px 32px),repeating-linear-gradient(0deg,#0a274122 0 1px,transparent 1px 8px),repeating-linear-gradient(90deg,#0a274122 0 1px,transparent 1px 8px),linear-gradient(145deg,#426f91,#244d70 64%,#183a5b)!important;box-shadow:inset 0 0 0 2px #d8c39b99,inset 0 0 0 5px #29465d,inset 0 0 34px #061829a8,0 5px 9px #160c06aa}
+body.workbench-active .table:before{content:"";position:absolute;inset:8px;z-index:1;pointer-events:none;border:1px solid #d3e4e8aa;border-radius:1px;box-shadow:inset 0 0 18px #07182766,0 0 0 2px #1e3b56}
+body.workbench-active .table:after{content:"KURONEKO REPAIR · ANTI-STATIC CUTTING MAT · 10 mm";position:absolute;z-index:2;left:14px;right:auto;bottom:9px;color:#dce9ee88;font:8px monospace;letter-spacing:.14em;pointer-events:none}
+body.workbench-active .device3d-stage{position:absolute!important;left:50%!important;top:47%!important;width:min(70%,1000px)!important;max-width:none!important;margin:0!important;transform:translate(-50%,-50%)!important;z-index:4;filter:drop-shadow(0 20px 17px #08121eaa)}
+body.workbench-active .device3d-stage.device-portrait{width:min(36%,480px)!important;aspect-ratio:3 / 4!important}
+body.workbench-active .device3d-stage.board-device-stage,body.workbench-active .table:has(.board-view) .device3d-stage{left:50%!important;top:46%!important;width:min(76%,1080px)!important;aspect-ratio:4 / 3!important;filter:drop-shadow(0 22px 20px #061321d9)}
+body.workbench-active .device3d-stage .device-hit-layer svg{width:100%!important;height:100%!important;max-height:none!important;transform:none!important;filter:drop-shadow(0 8px 12px #06152377)!important}
+body.workbench-active .bench-props{position:absolute;inset:0;z-index:3;pointer-events:none}
+body.workbench-active .prop-mouse{left:2%;top:42%;width:43px;height:57px}
+body.workbench-active .prop-cup{right:2.3%;top:10px;transform:rotate(2deg) scale(1.06)}
+body.workbench-active .prop-paper{right:15px;top:82px;width:84px;height:58px;transform:rotate(7deg)}
+body.workbench-active .prop-driver{left:24%;bottom:20px}
+body.workbench-active .prop-solder{position:absolute;right:21%;bottom:17px;width:94px;height:8px;border-radius:5px;transform:rotate(18deg);background:linear-gradient(90deg,#25292a 0 27%,#c7c7b8 28% 88%,#c17e46 89%);box-shadow:0 3px 5px #1118}
+body.workbench-active .bench-drawer{position:absolute;z-index:6;left:50%;bottom:0;transform:translateX(-50%);width:min(370px,36%);height:65px;margin:0;padding:9px 9px 8px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;border:1px solid #4a2d1d;border-bottom:0;border-radius:5px 5px 0 0;background:repeating-linear-gradient(2deg,#ffffff12 0 2px,transparent 2px 9px),linear-gradient(180deg,#bd8850,#8b582f 48%,#57351f);box-shadow:0 -5px 12px #1d110a88,inset 0 2px #f4cc8f77}
+body.workbench-active .bench-well{min-height:42px;padding:4px 3px;border:1px solid #9c7853;border-radius:2px;background:linear-gradient(145deg,#6b4e36,#30241c);box-shadow:inset 0 2px 5px #100b08aa,0 1px 0 #ffffff35;text-align:center;overflow:hidden}
+body.workbench-active .bench-well b{display:block;color:#e7d2ae;font:7px monospace;white-space:nowrap}
+body.workbench-active .bench-well span{display:block;color:#d2c5ae;font:9px monospace;white-space:nowrap}
+body.workbench-active .repair-note{right:14px;bottom:13px;z-index:8;width:214px;min-height:154px;padding:13px 11px 10px 23px}
+body.workbench-active .note-heading{font-size:16px;margin-bottom:8px}
+body.workbench-active .note-device{font-size:12px;margin-bottom:5px}
+body.workbench-active .note-task{font-size:11px}
+body.workbench-active .note-meta{font-size:9px;margin-top:5px}
+body.workbench-active .bench-view-controls{position:absolute;z-index:9;left:14px;bottom:13px;display:flex;align-items:center;gap:4px;padding:5px 7px;border:1px solid #9c835f;border-radius:3px;background:#1f2a35d9;box-shadow:0 3px 8px #07111c88;color:#e6e2d4}
+body.workbench-active .bench-view-controls button{min-width:24px;height:23px;padding:0 5px;border:1px solid #8f9da7;border-radius:2px;background:linear-gradient(#e7e2d5,#a9a69d);color:#20252b;font:bold 13px Arial,sans-serif}
+body.workbench-active .bench-view-controls button:hover{background:#fff2d7}
+body.workbench-active .view-control-hint{color:#e8e2d6;font:8px monospace;white-space:nowrap;margin:0 3px}
+body.workbench-active .bench-extra{position:absolute;inset:0;z-index:10;pointer-events:none}
+body.workbench-active .mat-panel{position:absolute;left:13px;bottom:53px;width:190px;min-height:83px;padding:8px 8px 9px;border:5px solid #775034;border-radius:6px;background:repeating-linear-gradient(0deg,#ffffff10 0 2px,transparent 2px 10px),linear-gradient(145deg,#9a704a,#553824);box-shadow:0 8px 12px #061321a8,inset 0 1px #f7d7aa66;pointer-events:auto}
+body.workbench-active .mat-tray-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;color:#f1ddbd;font:8px monospace;letter-spacing:.14em}
+body.workbench-active .mat-tray-heading span{color:#e2c39a}
+body.workbench-active .mat-surface{min-height:42px;max-height:90px;overflow:auto;display:flex;flex-wrap:wrap;gap:4px;align-content:flex-start;padding:5px;border:1px solid #b6a07a;border-radius:2px;background:linear-gradient(145deg,#d4c39d,#9e8b69)}
+body.workbench-active .mat-empty{align-self:center;color:#66543b;font:8px Georgia,serif}
+body.workbench-active .tray-spare{display:inline-grid;place-items:center;width:20px;height:17px}
+body.workbench-active .tray-spare.screw-a,body.workbench-active .tray-spare.screw-b{color:#6c7174;text-shadow:1px 1px #fff;font-size:16px}
+body.workbench-active .tray-spare.chip-a{border:1px solid #263a2c;background:#345b43;color:#c7cbb6;font-size:11px}
+body.workbench-active .tray-spare.socket-a{color:#77756b;font-size:15px}
+body.workbench-active .mat-part{display:flex;align-items:center;gap:3px;max-width:100%;padding:3px 4px;border:1px solid #8f8b7e;border-radius:2px;background:linear-gradient(#dedbd0,#a8a69a);color:#26272a;box-shadow:0 2px 0 #6c6357;font:8px Arial,sans-serif}
+body.workbench-active .mat-part.selected{outline:2px solid #f3d18b;transform:translateY(-1px)}
+body.workbench-active .mat-part button{border:0;border-radius:2px;background:#78403b;color:#fff;font-size:10px;padding:0 4px}
+body.workbench-active .trash-panel{position:absolute;left:214px;bottom:55px;width:48px;padding:4px;border:1px solid #a58e70;border-radius:3px;background:#4a3425;box-shadow:0 5px 10px #08132199;pointer-events:auto}
+body.workbench-active .trash-panel h3{margin:0 0 3px;color:#e8d5b9;font:7px monospace;text-align:center}
+body.workbench-active .trash-bin{width:100%;min-height:42px;padding:3px;border:1px dashed #d19a8a;border-radius:2px;background:linear-gradient(#65434a,#33252a);color:#f4d7cf;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1px}
+body.workbench-active .trash-bin span{font-size:16px}
+body.workbench-active .trash-bin small{font:7px monospace}
+body.workbench-active .trash-bin.drag-over{background:#a34f50}
+body.workbench-active .chip-log{flex:0 0 auto;max-height:48px;overflow:auto;margin:0;padding:4px 7px;border:1px solid #546b5b;border-radius:3px;background:#15241fd9;font:9px monospace}
+body.workbench-active .chip-log b{display:inline;color:#b5e6c7;font:9px monospace;margin:0 7px 0 0}
+body.workbench-active .chip-log-list{display:inline-flex;gap:3px;flex-wrap:wrap}
+body.workbench-active .chip-log-list span{padding:2px 4px;font:8px monospace}
+body.workbench-active .hint{flex:0 0 18px;min-height:18px;max-height:18px;overflow:hidden;margin:0 2px;color:#f1dfc1;font:10px Georgia,serif;white-space:nowrap;text-overflow:ellipsis}
+body.workbench-active .bench-actions{flex:0 0 auto;min-height:30px;gap:6px;margin:0}
+body.workbench-active .bench-actions .btn{padding:4px 9px;font:11px Georgia,serif}
+@media(max-width:900px){
+ body.workbench-active #st-bench{padding:7px!important}
+ body.workbench-active .bench{grid-template-columns:55px minmax(0,1fr);gap:6px;height:calc(100dvh - 58px)}
+ body.workbench-active .tools{width:55px;min-width:55px;padding:4px 3px;gap:4px}
+ body.workbench-active .tools button{min-height:51px}
+ body.workbench-active .tool-name{font-size:8px!important}
+ body.workbench-active .device3d-stage:not(.device-portrait){width:min(74%,760px)!important}
+ body.workbench-active .device3d-stage.device-portrait{width:min(42%,380px)!important}
+ body.workbench-active .repair-note{right:7px;bottom:8px;width:180px;min-height:132px;padding:10px 8px 7px 20px}
+ body.workbench-active .mat-panel{width:154px;left:8px;bottom:49px;padding:6px}
+ body.workbench-active .trash-panel{left:170px;bottom:51px}
+ body.workbench-active .bench-drawer{width:min(330px,34%);height:58px}
+ body.workbench-active .bench-view-controls{left:8px;bottom:8px}
+}
+@media(max-width:600px){
+ body.workbench-active #st-bench{padding:5px!important}
+ body.workbench-active .bench-head{height:40px;margin-bottom:5px;padding-right:38px}
+ body.workbench-active .bench-head-brand h2{font-size:13px}
+ body.workbench-active .bench-head-status{display:none}
+ body.workbench-active .bench-exit{right:1px;top:2px;width:27px;height:27px}
+ body.workbench-active .bench{height:calc(100dvh - 50px);grid-template-columns:1fr;grid-template-rows:54px minmax(0,1fr);gap:5px}
+ body.workbench-active .tools{width:100%;min-width:0;height:54px;overflow-x:auto;overflow-y:hidden;flex-direction:row;flex-wrap:nowrap;align-items:stretch;padding:3px;gap:4px}
+ body.workbench-active .tools button{width:58px;min-width:58px;height:46px;min-height:46px}
+ body.workbench-active .tool-icon{min-width:20px;width:20px;height:19px;font-size:13px}
+ body.workbench-active .tool-name{font-size:7px!important;white-space:nowrap}
+ body.workbench-active .workstation{padding:4px;gap:4px}
+ body.workbench-active .bench-gear{flex-basis:22px;min-height:22px;padding:3px 5px;font-size:7px}
+ body.workbench-active .bench-gear .work-lamp{font-size:7px}
+ body.workbench-active .bench-gear .bench-clock{display:none}
+ body.workbench-active .table{border-width:6px}
+ body.workbench-active .device3d-stage:not(.device-portrait){width:min(88%,520px)!important;top:43%!important}
+ body.workbench-active .device3d-stage.device-portrait{width:min(48%,260px)!important;top:42%!important}
+ body.workbench-active .device3d-stage.board-device-stage,body.workbench-active .table:has(.board-view) .device3d-stage{width:min(90%,560px)!important;top:42%!important}
+ body.workbench-active .prop-mouse{width:30px;height:42px;left:1%;top:38%}
+ body.workbench-active .prop-paper{display:none}
+ body.workbench-active .prop-cup{width:32px;height:38px;right:1%;top:5px}
+ body.workbench-active .prop-driver{left:25%;bottom:12px;width:57px}
+ body.workbench-active .prop-solder{display:none}
+ body.workbench-active .repair-note{right:5px;bottom:6px;width:145px;min-height:110px;padding:8px 6px 6px 16px}
+ body.workbench-active .note-heading{font-size:12px;margin-bottom:4px}
+ body.workbench-active .note-device{font-size:9px;margin-bottom:3px}
+ body.workbench-active .note-task{font-size:8px}
+ body.workbench-active .note-meta{font-size:7px;line-height:1.2}
+ body.workbench-active .note-rule{margin:5px 0 3px}
+ body.workbench-active .note-check{font-size:7px}
+ body.workbench-active .bench-view-controls{left:5px;bottom:6px;gap:2px;padding:3px}
+ body.workbench-active .bench-view-controls button{min-width:19px;height:20px;padding:0 3px;font-size:11px}
+ body.workbench-active .view-control-hint{font-size:6px;margin:0 1px}
+ body.workbench-active .mat-panel{left:6px;bottom:43px;width:113px;padding:4px;border-width:3px}
+ body.workbench-active .mat-tray-heading{font-size:6px}
+ body.workbench-active .mat-surface{min-height:28px;max-height:52px;padding:3px;gap:2px}
+ body.workbench-active .mat-empty{font-size:6px}
+ body.workbench-active .mat-part{font-size:6px;padding:2px}
+ body.workbench-active .trash-panel{left:124px;bottom:45px;width:38px;padding:2px}
+ body.workbench-active .trash-panel h3{font-size:6px}
+ body.workbench-active .trash-bin{min-height:30px}
+ body.workbench-active .bench-drawer{width:42%;height:43px;padding:5px 4px;gap:2px}
+ body.workbench-active .bench-well{min-height:30px;padding:2px}
+ body.workbench-active .bench-well b{font-size:5px}
+ body.workbench-active .bench-well span{font-size:6px}
+ body.workbench-active .chip-log{max-height:34px;padding:3px 4px}
+ body.workbench-active .chip-log b{font-size:7px}
+ body.workbench-active .chip-log-list span{font-size:6px}
+ body.workbench-active .hint{font-size:7px;flex-basis:13px;min-height:13px;max-height:13px}
+ body.workbench-active .bench-actions{min-height:24px}
+ body.workbench-active .bench-actions .btn{font-size:8px;padding:2px 5px}
+}

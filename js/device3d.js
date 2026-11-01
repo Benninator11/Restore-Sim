@@ -160,7 +160,7 @@
   function mount(j){
     const stage=document.getElementById('device3d-stage'),host=document.getElementById('device3d-canvas'),svg=document.getElementById('dsv');
     if(!stage||!host||!svg)return;stage.classList.remove('device3d-fallback');host.innerHTML='';host.style.display='block';svg.style.opacity='1';svg.style.pointerEvents='all';svg.style.touchAction='none';svg.style.zIndex='4';
-    const d=DEV[j.dev],st=j.st,portrait=!!d.portrait,viewHeight=portrait?400:300,viewWidth=portrait?300:400,rect=stage.getBoundingClientRect();
+    const d=DEV[j.dev],st=j.st,portrait=!j.st.boardOut&&!!d.portrait,viewHeight=portrait?400:300,viewWidth=portrait?300:400,rect=stage.getBoundingClientRect();
     if(!T||!T.WebGLRenderer){host.style.display='none';stage.classList.add('device3d-fallback');svg.style.opacity='1';stage.insertAdjacentHTML('beforeend','<div class="device3d-error">WebGL ist in diesem Browser nicht verfügbar – klassische Ansicht wird gezeigt.</div>');return}
     let renderer=null,scene,camera;
     try{
@@ -195,7 +195,7 @@
       const key=new T.DirectionalLight(0xfff1d6,2.15);key.position.set(-260,360,520);scene.add(key);
       const fill=new T.DirectionalLight(0x7eb9df,.95);fill.position.set(340,-220,280);scene.add(fill);
       const rim=new T.DirectionalLight(0xffc58b,1.2);rim.position.set(0,180,-340);scene.add(rim);
-      const cameraZ=850,fov=2*Math.atan((viewHeight/2)/cameraZ)*180/Math.PI;
+      const zoomKey=st.boardOut?'boardZoom':'viewZoom',savedZoom=Number.isFinite(st[zoomKey])?Math.max(.65,Math.min(1.65,st[zoomKey])):1,cameraZ=850/savedZoom,fov=2*Math.atan((viewHeight/2)/cameraZ)*180/Math.PI;
       camera=new T.PerspectiveCamera(fov,viewWidth/viewHeight,1,4000);camera.position.set(0,0,cameraZ);camera.lookAt(0,0,0);
       const model=new T.Group();model.rotation.order='ZYX';scene.add(model);
       const depth=st.boardOut?7:(DEPTH[d.form]||24),shape=st.boardOut?roundedRect(376,256,10):deviceShape(d.form);
@@ -207,10 +207,10 @@
       if(st.coverOff)addBoardComponents(model,j,frontZ);else{addDeviceDetails(model,j,frontZ);if(st.flipped)addScrews(model,j,frontZ)}
       model.rotation.x=(Number.isFinite(st.boardOut?st.boardRotX:st.viewRotX)?(st.boardOut?st.boardRotX:st.viewRotX):0)*Math.PI/180;
       model.rotation.y=(Number.isFinite(st.boardOut?st.boardRotY:st.viewRotY)?(st.boardOut?st.boardRotY:st.viewRotY):0)*Math.PI/180;
-      if(portrait)model.rotation.z=-Math.PI/2;
+      const rotZKey=st.boardOut?'boardRotZ':'viewRotZ',savedRotZ=Number.isFinite(st[rotZKey])?st[rotZKey]:0;model.rotation.z=(portrait?-90+savedRotZ:savedRotZ)*Math.PI/180;
       const resize=()=>{if(!stage.isConnected)return;const r=stage.getBoundingClientRect();renderer.setSize(Math.max(1,r.width),Math.max(1,r.height),false);renderer.render(scene,camera)};
       window.addEventListener('resize',resize);
-      active={stage,host,renderer,scene,camera,model,face,faceMaterial,svg,resize,frontZ,depth,j,textureReady:false,textureTimer:null};
+      active={stage,host,renderer,scene,camera,model,face,faceMaterial,svg,resize,frontZ,depth,j,portrait,viewHeight,textureReady:false,textureTimer:null};
       const viewer3D=active;
       viewer3D.textureTimer=setTimeout(()=>{
         if(active!==viewer3D||viewer3D.textureReady)return;
@@ -262,7 +262,26 @@
     const end=()=>{if(!drag)return;drag=null;stage.classList.remove('is-dragging');if(isBoard){st.boardRotX=x;st.boardRotY=y}else{st.viewRotX=x;st.viewRotY=y}if(typeof save==='function')save()};
     svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
     const reset=document.getElementById('a_rotate_reset');
-    if(reset){const old=reset.onclick;reset.onclick=function(){x=0;y=0;apply();if(isBoard){st.boardRotX=x;st.boardRotY=y}else{st.viewRotX=x;st.viewRotY=y}if(typeof save==='function')save();if(old)old()}}
+    if(reset){const old=reset.onclick;reset.onclick=function(){
+      x=0;y=0;apply();
+      if(isBoard){st.boardRotX=x;st.boardRotY=y;st.boardRotZ=0;st.boardZoom=1}else{st.viewRotX=x;st.viewRotY=y;st.viewRotZ=0;st.viewZoom=1}
+      if(active&&active.stage===stage){active.model.rotation.z=(active.portrait?-90:0)*Math.PI/180;active.camera.position.z=850;active.camera.updateProjectionMatrix();active.renderer.render(active.scene,active.camera)}
+      if(typeof save==='function')save();if(old)old();
+    }}
   }
-  window.Kuroneko3D={mount,attachRotation,dispose};
+  function rotatePlane(degrees){
+    if(!active||!Number.isFinite(degrees))return;
+    const st=active.j.st,key=st.boardOut?'boardRotZ':'viewRotZ',value=Number.isFinite(st[key])?st[key]:0;
+    st[key]=((value+degrees+180)%360+360)%360-180;
+    active.model.rotation.z=((active.portrait?-90:0)+st[key])*Math.PI/180;
+    active.renderer.render(active.scene,active.camera);if(typeof save==='function')save();
+  }
+  function zoomBy(factor){
+    if(!active||!Number.isFinite(factor)||factor<=0)return;
+    const st=active.j.st,key=st.boardOut?'boardZoom':'viewZoom',value=Number.isFinite(st[key])?st[key]:1;
+    st[key]=Math.max(.65,Math.min(1.65,value*factor));
+    active.camera.position.z=850/st[key];active.camera.updateProjectionMatrix();
+    active.renderer.render(active.scene,active.camera);if(typeof save==='function')save();
+  }
+  window.Kuroneko3D={mount,attachRotation,rotatePlane,zoomBy,dispose};
 })();

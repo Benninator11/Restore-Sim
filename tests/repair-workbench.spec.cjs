@@ -61,6 +61,28 @@ async function openAndRemoveBoard(page) {
   await expect(page.locator('#dsv.board-view')).toBeVisible();
 }
 
+test('fullscreen overhead workbench matches the repair-table layout and keeps controls working', async ({ page }) => {
+  await bootWorkbench(page);
+  await expect(page.locator('body')).toHaveClass(/workbench-active/);
+  await expect(page.locator('#st-bench')).toHaveCSS('position', 'fixed');
+  await expect(page.locator('#bench-rotate-left')).toBeVisible();
+  await expect(page.locator('#bench-zoom-in')).toBeVisible();
+  await expect(page.locator('.repair-note')).toBeVisible();
+  await expect(page.locator('#bench-extra .mat-panel')).toBeVisible();
+  await expect(page.locator('#bq')).toBeVisible();
+  await page.screenshot({ path: 'test-results/workbench-reference-layout.png', fullPage: true });
+
+  const initialZoom = await stateValue(page, 'S.jobs[0].st.viewZoom || 1');
+  await page.locator('#bench-zoom-in').click();
+  expect(await stateValue(page, 'S.jobs[0].st.viewZoom')).toBeGreaterThan(initialZoom);
+  await page.locator('#bench-rotate-right').click();
+  expect(await stateValue(page, 'S.jobs[0].st.viewRotZ')).toBe(15);
+
+  await page.locator('#bq').click();
+  await expect(page.locator('body')).not.toHaveClass(/workbench-active/);
+  await expect(page.locator('#st-jobs')).toBeVisible();
+});
+
 let pageErrors = [];
 test.beforeEach(async ({ page }) => {
   pageErrors = [];
