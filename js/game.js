@@ -245,6 +245,18 @@ function handleShopInteraction(action){
 }
 window.addEventListener('kuroneko-shop-interact',e=>handleShopInteraction(e.detail&&e.detail.action));
 
+function confirmBox(msg,yes){
+  $('#ovbox').innerHTML=`<h2>Bist du sicher?</h2><p>${msg}</p><div class="row"><button class="btn pink" id="cy">Ja</button><button class="btn alt" id="cn">Abbrechen</button></div>`;
+  $('#ov').hidden=false;$('#cy').onclick=()=>{$('#ov').hidden=true;yes()};$('#cn').onclick=()=>$('#ov').hidden=true;
+}
+/* --- Kunden-Avatar --- */
+function avatar(name){
+  let h=0;for(const ch of name)h=(h*31+ch.charCodeAt(0))>>>0;
+  const hair=['#1a1a1a','#4a2c1a','#7a3b1e','#c8b88a','#2c3e63'][h%5],shirt=['#ff6b9a','#7fe0c8','#ffe27a','#8d8fb8','#e0793a'][(h>>3)%5],skin=['#f6d3b3','#e8b98f','#d99d73'][(h>>5)%3];
+  return `<svg viewBox="0 0 110 150" aria-hidden="true"><rect x="22" y="78" width="66" height="72" rx="14" fill="${shirt}"/><circle cx="55" cy="48" r="28" fill="${skin}"/><path d="M26 46 Q28 16 55 17 Q84 16 84 46 Q70 30 55 32 Q40 30 26 46Z" fill="${hair}"/><circle cx="45" cy="52" r="3" fill="#222"/><circle cx="65" cy="52" r="3" fill="#222"/><path d="M47 64 Q55 70 63 64" stroke="#a33" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+}
+/* --- Laden --- */
+function curItem(){return S.queue[S.qi]}
 function renderShop(){
   const el=$('#st-shop'),it=curItem(),isBusy=!!cur;
   const name=it?(it.type==='event'?NODES[it.node].w:it.type==='new'?it.c.name:jobOf(it.jid).name):'';
