@@ -144,6 +144,9 @@ function mount(host,cfg={}){
     {x1:1.82,x2:4.15,z1:-1.88,z2:-.52}, // PC desk
     {x1:2.54,x2:4.72,z1:-5.92,z2:-5.00} // parts shelf
   ];
+  if(cfg.decor&&cfg.decor.plant)obstacles.push({x1:-4.42,x2:-3.82,z1:-5.02,z2:-4.42});
+  if(cfg.decor&&cfg.decor.chair)obstacles.push({x1:1.82,x2:2.68,z1:-4.08,z2:-3.28});
+  if(cfg.decor&&cfg.decor.shelf)obstacles.push({x1:-4.72,x2:-2.72,z1:-5.92,z2:-5.00});
   const blocked=(x,z)=>{
     const r=.24;
     return obstacles.some(o=>x+r>o.x1&&x-r<o.x2&&z+r>o.z1&&z-r<o.z2);
