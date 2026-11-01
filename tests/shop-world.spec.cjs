@@ -34,6 +34,9 @@ test('isometric shop loads, customer story plays and retro web store works', asy
   await expect(page.locator('#st-pc .net-home')).toBeVisible();
   await page.locator('#st-pc [data-net="market"]').click();
   await expect(page.locator('#st-pc .market-item')).toHaveCount(1);
+  await expect(page.locator('#st-pc .salvage-item')).toHaveCount(3);
+  await page.locator('#st-pc [data-salvage-buy]').first().click();
+  await expect(page.locator('#st-pc [data-salvage-buy]').first()).toHaveText('Ausgeschlachtet');
   await page.locator('#st-pc [data-market-k]').click();
   await expect(page.locator('#st-pc .market-item button')).toHaveText('Unterwegs');
   await page.locator('#st-pc .menu button[data-t="decor"]').click();
