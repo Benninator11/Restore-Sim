@@ -216,38 +216,82 @@ function renderTabs(){
   $('#tabs').innerHTML=T.map(([k,l])=>`<button role="tab" aria-selected="${tab===k}" data-t="${k}">${l}</button>`).join('');
   $('#tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{sfx(660,.05);go(b.dataset.t)});
 }
-function go(t){tab=t||tab;['shop','jobs','bench','pc'].forEach(k=>$('#st-'+k).hidden=(k!==tab));renderHud();renderTabs();
-  ({shop:renderShop,jobs:renderJobs,bench:renderBench,pc:renderPC})[tab]()}
-function confirmBox(msg,yes){
-  $('#ovbox').innerHTML=`<h2>Bist du sicher?</h2><p>${msg}</p><div class="row"><button class="btn pink" id="cy">Ja</button><button class="btn alt" id="cn">Abbrechen</button></div>`;
-  $('#ov').hidden=false;$('#cy').onclick=()=>{$('#ov').hidden=true;yes()};$('#cn').onclick=()=>$('#ov').hidden=true;
+function go(t){
+  tab=t||tab;
+  if(tab!=='shop'&&window.KuronekoShop3D)window.KuronekoShop3D.hide();
+  ['shop','jobs','bench','pc'].forEach(k=>$('#st-'+k).hidden=(k!==tab));
+  renderHud();renderTabs();
+  ({shop:renderShop,jobs:renderJobs,bench:renderBench,pc:renderPC})[tab]();
 }
-/* --- Kunden-Avatar --- */
-function avatar(name){
-  let h=0;for(const ch of name)h=(h*31+ch.charCodeAt(0))>>>0;
-  const hair=['#1a1a1a','#4a2c1a','#7a3b1e','#c8b88a','#2c3e63'][h%5],shirt=['#ff6b9a','#7fe0c8','#ffe27a','#8d8fb8','#e0793a'][(h>>3)%5],skin=['#f6d3b3','#e8b98f','#d99d73'][(h>>5)%3];
-  return `<svg viewBox="0 0 110 150" aria-hidden="true"><rect x="22" y="78" width="66" height="72" rx="14" fill="${shirt}"/><circle cx="55" cy="48" r="28" fill="${skin}"/><path d="M26 46 Q28 16 55 17 Q84 16 84 46 Q70 30 55 32 Q40 30 26 46Z" fill="${hair}"/><circle cx="45" cy="52" r="3" fill="#222"/><circle cx="65" cy="52" r="3" fill="#222"/><path d="M47 64 Q55 70 63 64" stroke="#a33" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+function handleShopInteraction(action){
+  if(!S)return;
+  if(action==='customer'){
+    if(cur){toast('Beende zuerst das aktuelle Gespräch.');return}
+    if(curItem()){sfx(520,.1);startItem()}else toast('Im Moment wartet niemand im Laden.');
+    return;
+  }
+  if(action==='bench'){
+    const job=S.jobs.find(j=>j.stage!=='done');
+    if(job){S.bench=job.id;tool='hand';hintTxt='Nimm das Gerät zuerst in die Hand.';sfx(620,.07);go('bench')}
+    else{go('jobs');toast('Wähle zuerst einen Reparaturauftrag.')}
+    return;
+  }
+  if(action==='computer'){pcTab='shop';sfx(600,.05);go('pc');return}
+  if(action==='jobs'){sfx(560,.05);go('jobs');return}
+  if(action==='exit'){
+    if(cur||curItem()){toast('Beende erst den Kundenbesuch, bevor du den Laden schließt.');return}
+    endDayDialog();return;
+  }
 }
-/* --- Laden --- */
-function curItem(){return S.queue[S.qi]}
+window.addEventListener('kuroneko-shop-interact',e=>handleShopInteraction(e.detail&&e.detail.action));
+
 function renderShop(){
-  const el=$('#st-shop'),it=curItem();
-  let name=it?(it.type==='event'?NODES[it.node].w:it.type==='new'?it.c.name:jobOf(it.jid).name):'';
-  let scene=`<div class="shopscene"><div class="neon">黒猫修理 · KURONEKO</div>${it?`<div class="cust">${avatar(name)}<div>${name}</div></div>`:'<div class="cust muted">Niemand im Laden</div>'}<div class="counter"></div></div>`;
+  const el=$('#st-shop'),it=curItem(),isBusy=!!cur;
+  const name=it?(it.type==='event'?NODES[it.node].w:it.type==='new'?it.c.name:jobOf(it.jid).name):'';
+  const world=`<div class="shop-world-shell">
+    <div class="shop-world-topbar">
+      <div class="shop-world-brand"><span class="shop-world-mark">K</span><div><strong>KURONEKO REPAIR</strong><small>Electronic Service · Tokyo 2005</small></div></div>
+      <div class="shop-world-stats"><span>TAG <b>${S.day}</b></span><span>KASSE <b>${yen(S.money)}</b></span><span>RUF <b>${S.rep}</b></span></div>
+    </div>
+    <div class="shop-world" id="shop-world">
+      <div class="shop-world-loading"><span>黒猫修理</span><small>Reparaturladen wird vorbereitet …</small></div>
+      <div class="shop-world-title"><b>Kuroneko Electronics</b><span>${it?(isBusy?'KUNDENGESPRÄCH':'KUNDE WARTET'):'SHOP · FREIE ZEIT'}</span></div>
+      <div class="shop-crosshair" aria-hidden="true"></div>
+      <div class="shop-world-prompt"><span>E</span><strong>Interagieren</strong></div>
+      <div class="shop-world-controls"><span><b>W A S D</b> Bewegen</span><span><b>Maus</b> Umschauen</span><span><b>E</b> Interagieren</span></div>
+      <div class="shop-world-mobile">
+        <button type="button" data-move="w" aria-label="Vorwärts">▲</button>
+        <div><button type="button" data-move="a" aria-label="Links">◀</button><button type="button" data-move="s" aria-label="Rückwärts">▼</button><button type="button" data-move="d" aria-label="Rechts">▶</button></div>
+      </div>
+      <div class="shop-world-actionbar">
+        <button type="button" data-world-action="customer"><span>♙</span>Kunde</button>
+        <button type="button" data-world-action="bench"><span>⚒</span>Werkbank</button>
+        <button type="button" data-world-action="computer"><span>▣</span>PC</button>
+        <button type="button" data-world-action="jobs"><span>▤</span>Aufträge</button>
+        <button type="button" data-world-action="exit"><span>↗</span>Feierabend</button>
+      </div>
+      <div id="dlg" class="world-dialog"></div>
+    </div>
+    <div class="shop-world-foot"><span>${it?(isBusy?'Das Gespräch läuft. Wähle eine Antwort im Dialog.':name+' ist angekommen. Gehe zum Tresen oder nutze „Kunde“.'):'Der Laden ist ruhig. Arbeite an Aufträgen, bestelle Ersatzteile oder beende den Tag.'}</span><span>3D · FIRST PERSON · SINGLE PLAYER</span></div>
+  </div>`;
   let body='';
   if(S.phase==='end'){body=''}
   else if(!it){
-    body=`<div class="card" style="margin-top:10px"><p>Keine Kunden mehr heute. Repariere Geräte an der Werkbank, bestelle Teile am PC${S.jobs.some(j=>j.stage==='done'&&!j.online)?'. Fertige Geräte werden morgen abgeholt.':'.'}</p><button class="btn pink" id="endday">Laden schließen (Tag ${S.day} beenden)</button></div>`;
-  } else if(!cur){
+    body=`<div class="card shop-day-card"><p>Keine Kunden mehr heute. Repariere offene Geräte, bestelle Teile am PC und schließe den Laden, wenn du fertig bist.</p><button class="btn pink" id="endday">Laden schließen (Tag ${S.day} beenden)</button></div>`;
+  }else if(!cur){
     const left=S.queue.length-S.qi;
-    body=`<div class="card" style="margin-top:10px"><p class="muted">${left} Kunde(n) warten. ${it.type==='pickup'?'Jemand holt ein Gerät ab.':it.type==='wait'?'Jemand fragt nach seinem Gerät.':''}</p><button class="btn" id="greet">Kunden begrüßen</button></div>`;
+    body=`<div class="card shop-day-card"><p class="muted">${left} Kund(innen) warten. ${it.type==='pickup'?'Ein Kunde möchte ein repariertes Gerät abholen.':it.type==='wait'?'Ein Kunde fragt nach seinem Gerät.':'Eine neue Reparaturanfrage ist eingetroffen.'}</p><button class="btn" id="greet">Kunden begrüßen</button></div>`;
   }
-  el.innerHTML=scene+`<div id="dlg"></div>`+body;
+  el.innerHTML=world+body;
   if($('#greet'))$('#greet').onclick=()=>{sfx(520,.1);startItem()};
   if($('#endday'))$('#endday').onclick=()=>{sfx(330,.15);endDayDialog()};
-  if(cur)drawDlg();
+  if(window.KuronekoShop3D){
+    const ok=window.KuronekoShop3D.mount($('#shop-world'),{hasCustomer:!!it,customerName:name,day:S.day,money:S.money,rep:S.rep});
+    if(ok){const loading=$('.shop-world-loading');if(loading)loading.remove()}
+  }
+  el.querySelectorAll('[data-world-action]').forEach(b=>b.addEventListener('click',()=>handleShopInteraction(b.dataset.worldAction)));
 }
-function jobOf(id){return S.jobs.find(j=>j.id===id)}
+
 function startItem(){
   const it=curItem();if(!it)return;
   if(it.type==='new')cur={node:it.c.intro,item:it};
