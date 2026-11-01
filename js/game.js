@@ -915,9 +915,41 @@ function smartShopMatch(query,haystack){
 function renderPC(){
   const el=$('#st-pc');
   const open=S.mail.filter(m=>m.state==='open').length;
-  const tabs=[['shop','Akiba-Parts'],['mail','Posteingang'+(open?' ('+open+')':'')],['book','Kassenbuch']];
+  const tabs=[['web','Internet'],['shop','Akiba-Parts'],['market','Neko-Auktion'],['mail','Posteingang'+(open?' ('+open+')':'')],['book','Kassenbuch']];
   let page='';
-  if(pcTab==='shop'){
+  if(pcTab==='web'){
+    page=`<div class='net-home'>
+      <div class='net-banner'><div class='net-logo'>東京 NET</div><div><b>Tokyo Net Directory</b><small>Das Internet von 2005 · Willkommen zurück!</small></div></div>
+      <div class='net-address'><span>Adresse</span><code>http://www.tokyo-net.jp/start</code><b>GO</b></div>
+      <h3>Deine Lesezeichen</h3>
+      <div class='net-sites'>
+        <button type='button' class='net-site' data-net='shop'><span>🧰</span><b>Akiba-Parts</b><small>Neue Ersatzteile direkt bestellen</small></button>
+        <button type='button' class='net-site' data-net='market'><span>📦</span><b>Neko-Auktion</b><small>Geprüfte Gebrauchtteile günstiger finden</small></button>
+        <button type='button' class='net-site' data-net='mail'><span>✉️</span><b>Postfach</b><small>${open} offene Reparaturanfragen</small></button>
+        <button type='button' class='net-site' data-net='book'><span>📒</span><b>Kassenbuch</b><small>Umsatz, Miete und Werkstattbilanz</small></button>
+      </div>
+      <div class='net-news'><b>NET-NACHRICHTEN · 2005</b><p>Die Reparatur kleiner Elektronikgeräte liegt wieder im Trend. Lokale Werkstätten berichten von mehr Anfragen für tragbare Musikplayer, Handhelds und Digitalkameras.</p><small>Tokyo Net News · Ausgabe 04/2005</small></div>
+      <div class='net-footer'>Verbunden mit Tokyo Net · Lokale Spielwelt · Seite 1 von 1</div>
+    </div>`;
+  } else if(pcTab==='market'){
+    const offers=[],seen=new Set();
+    const addOffer=(key,dev,label,kind,base)=>{
+      if(seen.has(key))return;seen.add(key);
+      const price=Math.max(100,Math.round(base*.68/50)*50);
+      const pending=S.orders.some(o=>o.key===key);
+      offers.push({key,dev,label,kind,price,pending});
+    };
+    S.jobs.filter(j=>j.stage!=='done').forEach(j=>{
+      const d=DEV[j.dev];
+      (j.faults||[]).forEach(pid=>{const p=d.parts.find(x=>x.id===pid);if(p)addOffer(partKey(j.dev,pid),j.dev,p.label,'Ersatzteil',partPrice(j.dev,pid));});
+      if(j.st){
+        (j.st.micro||[]).filter(m=>m.state==='broken'||m.state==='removed').forEach(m=>addOffer(microKey(j.dev,m.type),j.dev,microInfo(m.type).label,'Mikrochip',Math.max(500,Math.round(d.fee*.055/100)*100)));
+        (j.st.smdParts||[]).filter(m=>m.state==='broken'||m.state==='removed').forEach(m=>{const c=SMD_CATALOG.find(x=>x.id===m.type);if(c)addOffer(smdKey(j.dev,m.type),j.dev,c.label,'SMD-Bauteil',Math.max(150,Math.round(d.fee*.012/100)*100));});
+      }
+    });
+    const rows=offers.map(o=>'<div class="market-item"><div class="market-icon">'+(o.kind==='Mikrochip'?'▦':o.kind==='SMD-Bauteil'?'▪':'▰')+'</div><div class="market-info"><b>'+o.label+'</b><small>'+DEV[o.dev].name+' · '+o.kind+' · geprüft</small><small class="market-condition">Zustand: Sehr gut · 1 Stück verfügbar</small></div><div class="market-buy"><strong>'+yen(o.price)+'</strong><button class="buy" data-market-k="'+o.key+'" data-market-p="'+o.price+'" '+(S.money<o.price||o.pending?'disabled':'')+'>'+(o.pending?'Unterwegs':'Kaufen')+'</button></div></div>').join('');
+    page='<div class="net-market"><div class="net-market-head"><div><small>NEKO-AUKTION · GEBRAUCHTTEILE</small><h3>Gute Teile. Kleine Preise.</h3><p>Von Werkstätten geprüft und für deine Reparaturen vorbereitet.</p></div><span class="market-stamp">AKI<br>BA</span></div><div class="market-banner">★ TAGESANGEBOTE ★ Versand am nächsten Morgen ★ Nur solange der Vorrat reicht ★</div>'+(offers.length?'<div class="market-list">'+rows+'</div>':'<p class="net-empty">Zurzeit gibt es keine passenden Angebote. Nimm zuerst einen Auftrag an oder prüfe später wieder.</p>')+'<div class="net-footer">Neko-Auktion · Käuferschutz für Werkstätten · Lieferung dauert einen Spieltag</div></div>';
+  } else if(pcTab==='shop'){
     const types=Object.keys(DEV);
     const products=[];
     types.filter(t=>pcFilter==='all'||pcFilter===t).forEach(t=>{
@@ -946,6 +978,13 @@ function renderPC(){
   }
   el.innerHTML=`<div class="crt"><div class="win"><div class="title"><span>Tokyo-Net Explorer 6.0 - ${tabs.find(t=>t[0]===pcTab)[1]}</span><span>_ □ ✕</span></div><div class="menu">${tabs.map(t=>`<button data-t="${t[0]}" aria-selected="${pcTab===t[0]}">${t[1]}</button>`).join('')}</div><div class="page">${page}</div></div></div>`;
   el.querySelectorAll('.menu button').forEach(b=>b.onclick=()=>{pcTab=b.dataset.t;sfx(600,.04);renderPC()});
+  el.querySelectorAll('[data-net]').forEach(b=>b.onclick=()=>{pcTab=b.dataset.net;sfx(650,.04);renderPC()});
+  el.querySelectorAll('[data-market-k]').forEach(b=>b.onclick=()=>{
+    const pr=+b.dataset.marketP,key=b.dataset.marketK;
+    if(S.money<pr||S.orders.some(o=>o.key===key))return;
+    S.money-=pr;S.orders.push({key,arrive:S.day+1,market:true});
+    toast('Gebrauchtteil bestellt. Lieferung morgen.');sfx(1050,.1,'triangle');save();renderHud();renderPC();
+  });
   el.querySelectorAll('[data-f]').forEach(a=>a.onclick=()=>{pcFilter=a.dataset.f;renderPC()});
   const searchInput=$('#shop-search');
   if(searchInput){searchInput.oninput=()=>{pcSearch=searchInput.value;let visible=0;el.querySelectorAll('[data-shop-row]').forEach(row=>{const show=smartShopMatch(pcSearch,row.dataset.search||'');row.hidden=!show;if(show)visible++});const empty=$('#shop-no-results');if(empty)empty.style.display=visible?'none':'block'};if(pcSearch)searchInput.dispatchEvent(new Event('input'));}
