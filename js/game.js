@@ -182,7 +182,7 @@ function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeou
 function save(){try{localStorage.setItem('kuroneko_v1',JSON.stringify(S))}catch(e){}}
 function load(){try{const j=localStorage.getItem('kuroneko_v1');if(j){const o=JSON.parse(j);if(o&&o.day)return o}}catch(e){}return null}
 function newGame(){
-  S={day:1,money:20000,rep:50,rent:RENT,flags:{},jobs:[],inv:{},orders:[],queue:[],qi:0,mail:[],log:[],phase:'day',stats:{done:0,earned:0},decor:{},nid:1};
+  S={day:1,money:20000,rep:50,rent:RENT,flags:{},jobs:[],inv:{},orders:[],salvageLots:[],salvageDay:0,queue:[],qi:0,mail:[],log:[],phase:'day',stats:{done:0,earned:0},decor:{},nid:1};
   startDay();
 }
 function applyFx(fx,job){
@@ -192,6 +192,47 @@ function applyFx(fx,job){
   if(fx.flag)S.flags[fx.flag]=1;
   if(fx.rentUp)S.rent+=fx.rentUp;
   if(fx.discount){if(job)job.fee=Math.round(job.fee*.5/100)*100;else S.pendDisc=1}
+}
+/* Gebrauchte Bastlergeräte: günstige Quelle für Ersatzteile. */
+const SALVAGE_CATALOG=[
+  {dev:'handheld',name:'Pocket-Handheld · Display defekt',price:3300,parts:['battery','jack']},
+  {dev:'mp3',name:'MP3-Player · Akku schwach',price:2100,parts:['battery','jack']},
+  {dev:'camera',name:'Digitalkamera · Objektiv klemmt',price:3900,parts:['screen','battery']},
+  {dev:'discman',name:'Portable CD-Player · Laufwerkfehler',price:3500,parts:['motor','laser']},
+  {dev:'cassette',name:'Kassettenplayer · Riemen gerissen',price:2400,parts:['motor','belt']},
+  {dev:'pockettv',name:'Pocket-TV · Empfang gestört',price:3400,parts:['screen','tuner']},
+  {dev:'printer',name:'Fotodrucker · Papierstau',price:3800,parts:['motor','paper']},
+  {dev:'photoalbum',name:'Digitaler Bilderrahmen · Speicherfehler',price:2900,parts:['screen','memory']}
+];
+function refreshSalvageLots(){
+  if(S.salvageDay===S.day&&Array.isArray(S.salvageLots))return;
+  const start=(S.day*3-3)%SALVAGE_CATALOG.length;
+  S.salvageLots=Array.from({length:3},(_,i)=>{
+    const item=SALVAGE_CATALOG[(start+i*2)%SALVAGE_CATALOG.length];
+    return {id:'salvage-'+S.day+'-'+i,dev:item.dev,name:item.name,price:item.price,parts:item.parts.slice(),sold:false};
+  });
+  S.salvageDay=S.day;
+}
+function buySalvageLot(id){
+  refreshSalvageLots();
+  const lot=S.salvageLots.find(x=>x.id===id);
+  if(!lot||lot.sold){toast('Dieses Bastlergerät ist nicht mehr verfügbar.');return false}
+  if(S.money<lot.price){toast('Dafür reicht das Geld gerade nicht.');return false}
+  const d=DEV[lot.dev];
+  S.money-=lot.price;
+  const recovered=[];
+  lot.parts.forEach(pid=>{
+    if(!d.parts.some(p=>p.id===pid))return;
+    const key=partKey(lot.dev,pid);
+    S.inv[key]=(S.inv[key]||0)+1;
+    const part=d.parts.find(p=>p.id===pid);
+    recovered.push(part?part.label:pid);
+  });
+  lot.sold=true;
+  S.stats.salvaged=(S.stats.salvaged||0)+1;
+  save();renderHud();renderTabs();
+  toast('Ausgeschlachtet: '+recovered.join(', '));
+  return true;
 }
 /* --- Tagesbeginn --- */
 function rnd(a){return a[Math.floor(Math.random()*a.length)]}
@@ -205,6 +246,7 @@ function makeFiller(){
   return {id,name:n,dev:t,faults,intro:id+'_0',pick:id+'_p',filler:1};
 }
 function startDay(){
+  refreshSalvageLots();
   const q=[];
   S.jobs.filter(j=>!j.online).forEach(j=>{
     if(j.stage==='done')q.push({type:'pickup',jid:j.id});
@@ -1009,7 +1051,11 @@ function renderPC(){
       }
     });
     const rows=offers.map(o=>'<div class="market-item"><div class="market-icon">'+(o.kind==='Mikrochip'?'▦':o.kind==='SMD-Bauteil'?'▪':'▰')+'</div><div class="market-info"><b>'+o.label+'</b><small>'+DEV[o.dev].name+' · '+o.kind+' · geprüft</small><small class="market-condition">Zustand: Sehr gut · 1 Stück verfügbar</small></div><div class="market-buy"><strong>'+yen(o.price)+'</strong><button class="buy" data-market-k="'+o.key+'" data-market-p="'+o.price+'" '+(S.money<o.price||o.pending?'disabled':'')+'>'+(o.pending?'Unterwegs':'Kaufen')+'</button></div></div>').join('');
-    page='<div class="net-market"><div class="net-market-head"><div><small>NEKO-GEBRAUCHTMARKT · GEBRAUCHTTEILE</small><h3>Gute Teile. Kleine Preise.</h3><p>Von Werkstätten geprüft und für deine Reparaturen vorbereitet.</p></div><span class="market-stamp">AKI<br>BA</span></div><div class="market-banner">★ TAGESANGEBOTE ★ Versand am nächsten Morgen ★ Nur solange der Vorrat reicht ★</div>'+(offers.length?'<div class="market-list">'+rows+'</div>':'<p class="net-empty">Zurzeit gibt es keine passenden Angebote. Nimm zuerst einen Auftrag an oder prüfe später wieder.</p>')+'<div class="net-footer">Neko-Gebrauchtmarkt · Werkstatt-Schutz für Werkstätten · Lieferung dauert einen Spieltag</div></div>';
+    const salvageRows=(S.salvageLots||[]).map(lot=>{
+      const d=DEV[lot.dev],labels=lot.parts.map(pid=>{const p=d.parts.find(x=>x.id===pid);return p?p.label:pid});
+      return '<div class="salvage-item"><div class="salvage-device-icon">▣</div><div class="salvage-copy"><b>'+lot.name+'</b><small>'+d.name+' · Bastlergerät · ungeprüft</small><small class="salvage-parts">Mögliche Lagerteile: '+labels.join(', ')+'</small></div><div class="salvage-buy"><strong>'+yen(lot.price)+'</strong><button class="buy" data-salvage-buy="'+lot.id+'" '+(S.money<lot.price||lot.sold?'disabled':'')+'>'+(lot.sold?'Ausgeschlachtet':'Kaufen & zerlegen')+'</button></div></div>';
+    }).join('');
+    page='<div class="net-market"><div class="net-market-head"><div><small>NEKO-GEBRAUCHTMARKT · GEBRAUCHTTEILE</small><h3>Gute Teile. Kleine Preise.</h3><p>Neue Ersatzteile oder günstige Bastlergeräte zum Ausschlachten.</p></div><span class="market-stamp">AKI<br>BA</span></div><div class="market-banner">★ TAGESANGEBOTE ★ Versand am nächsten Morgen ★ Nur solange der Vorrat reicht ★</div><div class="salvage-board"><h4>Bastlergeräte · Teile retten statt neu kaufen</h4><p>Die Geräte sind defekt. Der Kauf lohnt sich, wenn du die passenden Teile für deine Aufträge brauchst.</p>'+salvageRows+'</div>'+(offers.length?'<div class="market-list">'+rows+'</div>':'<p class="net-empty">Zurzeit gibt es keine passenden Ersatzteil-Angebote.</p>')+'<div class="net-footer">Neko-Gebrauchtmarkt · Lieferung dauert einen Spieltag</div></div>';
   } else if(pcTab==='shop'){
     const types=Object.keys(DEV);
     const products=[];
@@ -1055,6 +1101,10 @@ function renderPC(){
     if(S.money<item.price){toast('Dafür reicht das Geld noch nicht.');return}
     S.money-=item.price;S.decor[item.id]=true;
     toast(item.name+' wurde eingebaut.');sfx(780,.12,'triangle');save();renderHud();renderPC();
+  });
+  el.querySelectorAll('[data-salvage-buy]').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;
+    if(buySalvageLot(b.dataset.salvageBuy))renderPC();
   });
   el.querySelectorAll('[data-market-k]').forEach(b=>b.onclick=()=>{
     const pr=+b.dataset.marketP,key=b.dataset.marketK;
