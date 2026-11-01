@@ -163,7 +163,7 @@
       const cameraZ=850,fov=2*Math.atan((viewHeight/2)/cameraZ)*180/Math.PI;
       camera=new T.PerspectiveCamera(fov,viewWidth/viewHeight,1,4000);camera.position.set(0,0,cameraZ);camera.lookAt(0,0,0);
       const model=new T.Group();model.rotation.order='ZYX';scene.add(model);
-      const depth=st.boardOut?6:(DEPTH[d.form]||24),shape=deviceShape(d.form);
+      const depth=st.boardOut?7:(DEPTH[d.form]||24),shape=st.boardOut?roundedRect(376,256,10):deviceShape(d.form);
       const geo=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelThickness:Math.min(2,depth*.22),bevelSize:1.8,bevelSegments:3,steps:1,curveSegments:16});geo.computeVertexNormals();
       const front=basic(st.boardOut?'#245b40':d.color,.35,.35),side=basic(st.boardOut?'#22533e':d.color,.34,.42);
       const body=new T.Mesh(geo,[front,side]);body.position.z=-depth/2;body.castShadow=true;body.receiveShadow=true;model.add(body);
@@ -187,7 +187,7 @@
         viewer3D.textureReady=true;if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
         faceMaterial.map=texture;faceMaterial.opacity=1;faceMaterial.needsUpdate=true;
         /* Keep the closed/front/back device face visible; only the opened board uses the WebGL texture alone. */
-        svg.style.opacity=st.coverOff?'.001':'1';renderer.render(scene,camera);
+        svg.style.opacity='.001';renderer.render(scene,camera);
       },err=>{
         if(active!==viewer3D)return;
         if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);

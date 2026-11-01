@@ -292,3 +292,150 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 .device-hit-layer svg{opacity:1}
 .device3d-canvas{min-width:1px;min-height:1px}
 .device3d-fallback .device3d-canvas{display:none}
+
+
+/* -----------------------------------------------------------
+   KURONEKO REPAIR — cinematic repair desk inspired by the
+   supplied workbench references (original CSS-only artwork).
+   ----------------------------------------------------------- */
+.workstation{
+  position:relative;overflow:visible;padding:10px 10px 0;
+  border:1px solid #765638;border-radius:8px;
+  background:
+    radial-gradient(ellipse at 50% 0%,#b48a5733,transparent 48%),
+    repeating-linear-gradient(2deg,#ffffff08 0 2px,#00000008 2px 4px,transparent 4px 12px),
+    linear-gradient(110deg,#6b472d 0%,#9b7049 22%,#754b30 54%,#4b3023 100%);
+  box-shadow:inset 0 2px 0 #ffffff30,inset 0 -12px 22px #170d08a8,0 18px 30px #000b;
+}
+.bench-gear{
+  position:relative;z-index:2;min-height:29px;margin:0 0 8px;padding:5px 12px;
+  border:1px solid #5c5144;border-bottom:3px solid #28231f;border-radius:4px;
+  background:linear-gradient(180deg,#55565a,#303238 55%,#1f2026);
+  box-shadow:0 3px 5px #0008,inset 0 1px #ffffff35;
+  color:#e5d9c6;font:9px var(--f-display);letter-spacing:.11em;text-shadow:0 1px 2px #000;
+}
+.work-lamp i{width:28px;height:11px;background:linear-gradient(#fff9d9,#e1bd76);box-shadow:0 0 18px #ffe8a099}
+.esd-chip{color:#aee7d4!important}.bench-clock{color:#dbc19a!important}
+.table{
+  position:relative;display:block;width:100%;height:clamp(470px,66vh,650px);min-height:470px;
+  padding:0;overflow:hidden;isolation:isolate;border:10px solid #66503b;border-radius:3px;
+  box-shadow:0 8px 10px #1d110bc9,inset 0 0 0 2px #d3b88b,inset 0 0 0 5px #263448,inset 0 0 34px #071a2b;
+  background-color:#315b78!important;
+  background-image:
+    radial-gradient(ellipse at 40% 36%,#8eb6d055,transparent 58%),
+    repeating-linear-gradient(0deg,#d8e6ef42 0 1px,transparent 1px 32px),
+    repeating-linear-gradient(90deg,#d8e6ef42 0 1px,transparent 1px 32px),
+    repeating-linear-gradient(0deg,#0a274122 0 1px,transparent 1px 8px),
+    repeating-linear-gradient(90deg,#0a274122 0 1px,transparent 1px 8px),
+    linear-gradient(145deg,#456f8d,#294d6b 65%,#1c3e5c)!important;
+  perspective:1500px;
+}
+.table:before{
+  content:"";position:absolute;z-index:1;inset:7px;border:1px solid #c9d9df9a;border-radius:1px;
+  box-shadow:inset 0 0 18px #07182772,0 0 0 2px #142d42a0;pointer-events:none;
+}
+.table:after{
+  content:"KURONEKO REPAIR  ·  CUTTING MAT  ·  10 mm GRID";
+  position:absolute;z-index:1;left:14px;bottom:10px;right:auto;color:#dbe9ee83;
+  font:9px monospace;letter-spacing:.14em;text-shadow:0 1px 2px #102638;pointer-events:none;
+}
+.device3d-stage{
+  position:absolute!important;left:43%!important;top:48%!important;transform:translate(-50%,-50%);
+  z-index:4;margin:0!important;max-width:none!important;overflow:visible!important;
+  filter:drop-shadow(0 18px 14px #101a24a8);
+}
+.device3d-canvas{z-index:2}.device-hit-layer{z-index:4}
+.device-hit-layer svg{opacity:1;overflow:visible}
+.table:has(.board-view) .device3d-stage{
+  left:38%!important;top:48%!important;width:min(70%,790px)!important;
+  aspect-ratio:4 / 3!important;filter:drop-shadow(0 22px 20px #07150dcc);
+}
+.table:has(.board-view) .device-hit-layer svg{width:100%!important;height:100%!important}
+.bench-props{position:absolute;inset:0;z-index:3;pointer-events:none}
+.prop-tray{
+  position:absolute;left:12px;bottom:22px;width:104px;height:76px;display:flex;align-content:center;
+  justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;padding:9px;transform:rotate(-12deg);
+  border:5px solid #704b32;border-radius:8px;color:#d9d0bd;
+  background:linear-gradient(140deg,#5c4939,#262c32 70%);
+  box-shadow:0 7px 10px #07121b99,inset 0 1px #fff4;font-size:13px;
+}
+.prop-tray b{width:100%;text-align:center;font:7px monospace;letter-spacing:.14em;color:#c8b89d}
+.prop-mouse{
+  position:absolute;left:2.2%;top:31%;width:48px;height:66px;transform:rotate(-28deg);
+  border:2px solid #141b24;border-radius:55% 55% 48% 48%;
+  background:linear-gradient(110deg,#687783,#222f3c 65%,#111b27);
+  box-shadow:0 5px 8px #06132199,inset 1px 1px 4px #ffffff48;
+}
+.prop-mouse:before{content:"";position:absolute;top:5px;left:50%;height:17px;border-left:1px solid #9fabb2}
+.prop-mouse:after{content:"";position:absolute;left:50%;top:8px;width:5px;height:8px;border-radius:3px;background:#d5a36f;transform:translateX(-50%)}
+.prop-mouse i{position:absolute;width:54px;height:46px;border-left:2px solid #222c35;border-bottom:2px solid #222c35;border-radius:0 0 0 80%;left:-31px;top:26px;transform:rotate(-28deg)}
+.prop-cup{
+  position:absolute;right:3.5%;top:13px;width:48px;height:53px;border:2px solid #8d7b45;
+  border-radius:5px 5px 13px 13px;background:linear-gradient(90deg,#8b8a36,#b9a84d 48%,#6e682c);
+  box-shadow:0 5px 9px #101a2599,inset 0 2px #fff5;
+}
+.prop-cup:before{content:"";position:absolute;right:-13px;top:10px;width:15px;height:21px;border:4px solid #a18b43;border-left:0;border-radius:0 12px 12px 0}
+.prop-cup i{position:absolute;bottom:39px;left:7px;width:3px;height:45px;border-radius:3px;background:#c6b47c;transform:rotate(-17deg);transform-origin:bottom}
+.prop-cup i:nth-child(2){left:17px;height:53px;background:#4a8c72;transform:rotate(9deg)}
+.prop-cup i:nth-child(3){left:26px;height:41px;background:#bd7a47;transform:rotate(17deg)}
+.prop-cup i:nth-child(4){left:34px;height:49px;background:#333d56;transform:rotate(26deg)}
+.prop-cup b{position:absolute;bottom:4px;left:10px;width:23px;height:5px;border-radius:3px;background:#d7c46d}
+.prop-paper{
+  position:absolute;right:13px;top:83px;width:90px;height:62px;padding:6px;transform:rotate(13deg);
+  border:1px solid #bca985;background:linear-gradient(145deg,#f0e6ca,#c9b996);
+  box-shadow:0 5px 8px #11223388;color:#77674d;font:6px monospace;
+}
+.prop-paper span{display:block;margin-bottom:7px}.prop-paper i{display:block;height:1px;margin:7px 0;background:#a99b7d}
+.prop-driver{
+  position:absolute;left:25%;bottom:18px;width:83px;height:8px;border-radius:5px;transform:rotate(-16deg);
+  background:linear-gradient(90deg,#c0cad0 0 57%,#bd7439 57% 100%);box-shadow:0 3px 4px #1118;
+}
+.prop-driver:after{content:"";position:absolute;left:-10px;top:2px;width:18px;height:4px;border-radius:3px;background:#c7ccd1}
+.repair-note{
+  position:absolute;z-index:8;right:12px;bottom:15px;width:226px;min-height:190px;
+  padding:16px 13px 12px 25px;transform:rotate(-1.2deg);
+  border:1px solid #b7a27c;border-radius:2px 2px 5px 2px;color:#4b4133;
+  background:linear-gradient(90deg,transparent 0 17px,#cf8f8066 17px 18px,transparent 18px),
+    repeating-linear-gradient(0deg,transparent 0 22px,#8b76512a 22px 23px),linear-gradient(145deg,#f4ecd7,#d8c9a7);
+  box-shadow:0 9px 18px #07152399,2px 2px 0 #897757;font-family:Georgia,serif;
+}
+.repair-note:before{
+  content:"";position:absolute;top:-4px;left:50%;width:60px;height:13px;transform:translateX(-50%) rotate(-2deg);
+  background:#e8d6a7cc;box-shadow:0 1px 2px #4c382466;
+}
+.note-rings{
+  position:absolute;left:6px;top:27px;width:9px;height:calc(100% - 42px);
+  border-top:2px dotted #9b8b70;border-bottom:2px dotted #9b8b70;
+  background:repeating-linear-gradient(0deg,transparent 0 25px,#9e8d6e 25px 27px);
+}
+.note-heading{text-align:center;margin:0 0 12px;color:#655740;font-size:17px;font-style:italic;text-decoration:underline;text-underline-offset:3px}
+.note-device{font-weight:700;font-size:13px;color:#6b5131;margin-bottom:9px}
+.note-task{font-size:12px;line-height:1.45;margin-bottom:7px;color:#594d3b}
+.note-progress{height:8px;border:1px solid #9d987f;background:#eee5ce;box-shadow:inset 0 1px 2px #0002;overflow:hidden}
+.note-progress span{display:block;height:100%;background:linear-gradient(90deg,#5f9ab4,#70b4c7);transition:width .35s}
+.note-meta{font-size:10px;margin-top:8px;line-height:1.4;color:#86765a}
+.note-rule{height:1px;background:#a99c8066;margin:12px 0 6px}
+.note-check{font-size:10px;color:#6e694d}
+.bench-drawer{
+  position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;
+  margin:8px -10px 0;padding:13px 12px 15px;border:1px solid #4c3324;border-bottom:0;
+  border-radius:5px 5px 0 0;
+  background:repeating-linear-gradient(2deg,#ffffff10 0 2px,transparent 2px 10px),linear-gradient(180deg,#bb8751,#85552f 45%,#57351f);
+  box-shadow:0 -5px 12px #1d110a88,inset 0 2px #f6cd8e55;
+}
+.bench-well{min-height:44px;border:1px solid #9b7953;border-radius:3px;background:linear-gradient(145deg,#5a4535,#2d2826);box-shadow:inset 0 2px 6px #100b08aa,0 1px 0 #ffffff35}
+.bench-well b{color:#e7d2ae}.bench-well span{color:#d2c5ae}
+.bench-drawer+.chip-log{margin-top:0;border-radius:0 0 5px 5px}
+@media(max-width:760px){
+  .table{height:590px;min-height:590px}
+  .device3d-stage{left:39%!important;top:43%!important;max-width:78%}
+  .table:has(.board-view) .device3d-stage{left:38%!important;width:min(78%,690px)!important;top:43%!important}
+  .repair-note{width:192px;min-height:145px;padding:12px 9px 8px 22px;right:7px;bottom:8px}
+  .note-heading{font-size:14px;margin-bottom:7px}.note-device{font-size:11px;margin-bottom:5px}.note-task{font-size:10px}
+  .prop-tray{width:82px;height:60px;left:5px;bottom:9px}.prop-paper{display:none}
+}
+@media(max-width:520px){
+  .table{height:570px;min-height:570px}
+  .device3d-stage{left:41%!important;top:36%!important;max-width:85%}
+  .repair-note{width:176px;min-height:138px}.bench-drawer{grid-template-columns:1fr 1fr}.prop-cup{right:8px}
+}

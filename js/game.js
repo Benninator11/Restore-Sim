@@ -431,9 +431,31 @@ function renderBench(){
   ];
   const stepsHtml=`<div class="prog">${steps.map(s=>`<span class="${s[1]?'on':''}">${s[0]}</span>`).join('')}</div>`;
   const side=st.coverOff?'Innenleben':st.flipped?'Rückseite':'Vorderseite';
+  const screwsDone=st.screwOut.filter(Boolean).length;
+  let todoTitle='Front Panel',todoAction='Remove dust',todoValue=Math.round(clean*100),todoMeta='Staub und Schmutz von der Geräteoberseite entfernen';
+  if(st.flipped&&!st.coverOff){todoTitle='Back Panel';todoAction='Remove screws';todoValue=Math.round(screwsDone/Math.max(1,d.screws)*100);todoMeta=screwsDone+'/'+d.screws+' Schrauben in der Magnetschale';}
+  if(st.coverOff&&!st.boardOut){todoTitle='Internal Assembly';todoAction='Remove motherboard';todoValue=0;todoMeta='Clips lösen und die Platine vorsichtig anheben';}
+  if(st.boardOut){todoTitle='Motherboard';todoAction='Identify & resolder';todoValue=Math.round(identified.length/Math.max(1,st.micro.length)*100);todoMeta=identified.length+'/'+st.micro.length+' ICs mit dem CT-08 getestet';}
+  if(st.closing){todoTitle='Reassembly';todoAction='Secure the case';todoValue=Math.round((d.screws-screwsDone)/Math.max(1,d.screws)*100);todoMeta=(d.screws-screwsDone)+'/'+d.screws+' Schrauben eingesetzt';}
+  const stageWidth=st.boardOut?800:(d.portrait?330:460);
+  const stageRatio=st.boardOut?'4 / 3':d.portrait?'3 / 4':'4 / 3';
+  const todoMarkup=`<aside class="repair-note" aria-label="Reparaturaufgaben"><div class="note-rings"></div><div class="note-heading">To-do list:</div><div class="note-device">${todoTitle}</div><div class="note-task">1) ${todoAction}: ${todoValue}%</div><div class="note-progress"><span style="width:${todoValue}%"></span></div><div class="note-meta">${todoMeta}</div><div class="note-rule"></div><div class="note-check">${st.tested?'✓ Funktionstest abgeschlossen':'○ Reparatur in Arbeit'}</div></aside>`;
   el.innerHTML=`<div class="row" style="align-items:center;justify-content:space-between"><div><h2>${d.name} (${j.name})</h2><span class="tag">${side}</span><span class="tag">Schraubenkopf: ${d.bit}</span></div><div><button class="btn alt" id="bq">Anderes Gerät</button></div></div>${stepsHtml}
   <div class="bench"><div class="tools" id="tools">${TOOLS.map(t=>`<button data-t="${t.id}" aria-pressed="${tool===t.id}"><span class="tool-icon">${t.icon}</span><span>${t.name}<small>${t.sub}</small></span></button>`).join('')}</div>
-  <div class="workstation"><div class="bench-gear"><span class="work-lamp"><i></i> LED-LUPENLAMPE</span><span class="esd-chip">⏚ ESD-SCHUTZMATTE</span><span class="bench-clock">PRECISION REPAIR · 2005</span></div><div class="table" id="tbl"><div class="device3d-stage" id="device3d-stage" style="width:min(100%,${d.width||340}px);aspect-ratio:${d.portrait?'3 / 4':'4 / 3'}"><div class="device3d-canvas" id="device3d-canvas"></div><div class="device-hit-layer" id="device-hit-layer">${deviceSvg(j,clean)}</div></div></div><div class="bench-drawer"><div class="bench-well"><b>Magnetschale</b><span class="screws">● ● ● ●</span></div><div class="bench-well"><b>Bauteilablage</b><span>▰ ▪ ▰ ▪</span></div><div class="bench-well"><b>Reiniger</b><span class="chemical">IPA · Mikrofasertuch</span></div><div class="bench-well"><b>IC-Teststation · CT-08</b><span>🔬 U01–U18 einzeln prüfen</span></div></div><div class="chip-log"><b>Chip-Testprotokoll · ${identified.length}/${st.micro.length} erkannt</b><div class="chip-log-list">${chipLogHtml}</div></div><div class="hint" id="hint">${hintTxt||'Nimm das Gerät zuerst in die Hand und drehe es um.'}</div><div class="row" id="acts"></div></div></div>`;
+  <div class="workstation"><div class="bench-gear"><span class="work-lamp"><i></i> LED-LUPENLAMPE</span><span class="esd-chip">⏚ ESD-SCHUTZMATTE</span><span class="bench-clock">PRECISION REPAIR · 2005</span></div>
+  <div class="table" id="tbl">
+    <div class="bench-props" aria-hidden="true">
+      <div class="prop-tray"><span>🔩</span><span>▰</span><span>◉</span><span>⌁</span><b>PARTS TRAY</b></div>
+      <div class="prop-mouse"><i></i></div>
+      <div class="prop-cup"><i></i><i></i><i></i><i></i><b></b></div>
+      <div class="prop-paper"><span>REPAIR NOTES</span><i></i><i></i></div>
+      <div class="prop-driver"></div>
+    </div>
+    <div class="device3d-stage" id="device3d-stage" style="width:min(100%,${stageWidth}px);aspect-ratio:${stageRatio}"><div class="device3d-canvas" id="device3d-canvas"></div><div class="device-hit-layer" id="device-hit-layer">${deviceSvg(j,clean)}</div></div>
+    ${todoMarkup}
+  </div>
+  <div class="bench-drawer"><div class="bench-well"><b>Magnetschale</b><span class="screws">● ● ● ●</span></div><div class="bench-well"><b>Bauteilablage</b><span>▰ ▪ ▰ ▪</span></div><div class="bench-well"><b>Reiniger</b><span class="chemical">IPA · Mikrofasertuch</span></div><div class="bench-well"><b>IC-Teststation · CT-08</b><span>🔬 U01–U18 einzeln prüfen</span></div></div>
+  <div class="chip-log"><b>Chip-Testprotokoll · ${identified.length}/${st.micro.length} erkannt</b><div class="chip-log-list">${chipLogHtml}</div></div><div class="hint" id="hint">${hintTxt||'Nimm das Gerät zuerst in die Hand und drehe es um.'}</div><div class="row" id="acts"></div></div></div>`;
   $('#bq').onclick=()=>go('jobs');
   $('#tools').querySelectorAll('button').forEach(b=>b.onclick=()=>{tool=b.dataset.t;sfx(500,.04);renderBench()});
   wireBench(j,clean);
@@ -964,7 +986,7 @@ function partPinLayer(j){
   return out;
 }
 function boardOnlySvg(j,clean){
-  const st=j.st,d=DEV[j.dev],f=svgFrame(d),rr=seeded(j.id*101+13);let s=`<svg viewBox="${f.view}" id="dsv" class="board-view" style="width:min(100%,900px);height:auto" aria-label="Ausgebaute Platine von ${d.name}">${ART_DEFS}<g transform="${f.transform}">`;
+  const st=j.st,d=DEV[j.dev],rr=seeded(j.id*101+13);let s=`<svg viewBox="0 0 400 300" id="dsv" class="board-view" style="width:min(100%,900px);height:auto" aria-label="Ausgebaute Platine von ${d.name}">${ART_DEFS}<g>`;
   s+=`<path d="M28 17H372Q388 17 388 33V267Q388 283 372 283H28Q12 283 12 267V33Q12 17 28 17Z" fill="#101a18" opacity=".85" transform="translate(0 7)"/><path d="M28 17H372Q388 17 388 33V267Q388 283 372 283H28Q12 283 12 267V33Q12 17 28 17Z" fill="url(#pcb)" stroke="#d6c59a" stroke-width="4" filter="url(#grain)"/><path d="M34 23H366Q380 23 380 37V263Q380 277 366 277H34Q20 277 20 263V37Q20 23 34 23Z" fill="none" stroke="#66b98d" stroke-width="1.5" opacity=".7"/>`;
   let traces='';for(let i=0;i<56;i++){let x=35+rr()*330,y=30+rr()*240,dx=(rr()-.5)*90,dy=(rr()-.5)*70;traces+=`<path d="M${x.toFixed(1)} ${y.toFixed(1)}h${dx.toFixed(1)}v${dy.toFixed(1)}h${(rr()-.5)*55}"/>`}
   s+=`<g fill="none" stroke="#8fbd76" stroke-width="1.2" opacity=".48" stroke-linecap="round" stroke-linejoin="round">${traces}</g><g fill="none" stroke="#d6b45c" stroke-width=".8" opacity=".45">${traces}</g>`;
