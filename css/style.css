@@ -571,3 +571,230 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 .decor-copy b{display:block;color:#29302d;font-size:13px}.decor-copy small{display:block;color:#73736a;font-size:11px}.decor-copy strong{display:block;margin-top:3px;color:#4f604e;font-size:11px}
 .decor-item .buy{min-width:88px}.decor-item .buy:disabled{opacity:.7;color:#385a45}
 @media(max-width:600px){.decor-item{grid-template-columns:40px minmax(0,1fr) auto;gap:7px;padding:7px}.decor-icon{width:38px;height:38px}.decor-item .buy{min-width:72px;font-size:11px;padding:3px 6px}.decor-heading h3{font-size:18px}}
+
+
+/* ===== RESTORY-LIKE Y2K ART DIRECTION: original assets, new camera layout ===== */
+.shop-world-shell{
+ border:2px solid #674a35;border-radius:8px;background:#241c17;
+ box-shadow:0 18px 40px #100b08aa,0 0 0 1px #d5b48733;
+}
+.shop-world-topbar{
+ background:linear-gradient(90deg,#382a22,#564032 52%,#34261f);
+ border-bottom:2px solid #8b6749;color:#f0dfc2;
+}
+.shop-world-brand{color:#f5e7d2}
+.shop-world-mark{border-radius:5px;background:linear-gradient(145deg,#e9b48a,#a75d45);box-shadow:inset 0 1px #fff8,0 2px 4px #140b08;font-family:Georgia,serif}
+.shop-world-stats{color:#d7c2a3}
+.shop-world-stats b{color:#f4ca85}
+.shop-world{
+ height:clamp(500px,58vw,700px);min-height:500px;
+ background:radial-gradient(ellipse at 50% 15%,#d2a879,#71513b 62%,#3b2b22);
+ overflow:hidden;isolation:isolate;
+}
+#shop-world-canvas{
+ position:absolute;inset:0;width:100%;height:100%;display:block;outline:none;
+ touch-action:pan-y;cursor:default;filter:saturate(.96) contrast(1.025);
+}
+.shop-world:before{
+ content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+ background:
+  linear-gradient(90deg,#25170f22,transparent 12%,transparent 88%,#25170f28),
+  linear-gradient(180deg,#fff0 60%,#20140d35),
+  radial-gradient(ellipse at center,transparent 53%,#1c100b38 100%);
+}
+.shop-world:after{
+ content:"";position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.15;
+ background:repeating-linear-gradient(0deg,#1d140d 0 1px,transparent 1px 4px);
+ mix-blend-mode:multiply;
+}
+.shop-world-loading{
+ background:linear-gradient(135deg,#6d4d37,#30231d);color:#f3e3ca;
+}
+.shop-world-loading span{color:#e8b18c}
+.shop-world-title{
+ top:13px;left:15px;padding:8px 12px;border:1px solid #d6b28a88;
+ border-radius:3px;background:#39281fdf;box-shadow:0 3px 10px #150e0a88;color:#f9ead4;
+}
+.shop-world-title b{font:700 15px Georgia,serif;letter-spacing:.08em}
+.shop-world-title span{color:#eac28c}
+.shop-world-clock{
+ position:absolute;left:15px;top:80px;z-index:5;display:flex;flex-direction:column;
+ min-width:88px;padding:5px 8px;border:2px solid #876c4e;background:#1b332b;
+ box-shadow:0 2px 7px #120b08a6;color:#d6efb0;font-family:monospace;text-shadow:0 0 6px #9ae58b55;
+}
+.shop-world-clock b{font-size:17px;line-height:1.2}
+.shop-world-clock small{font-size:8px;color:#b5c99a;letter-spacing:.15em}
+.shop-world-controls{
+ left:14px;bottom:14px;padding:7px 10px;background:#2a211bd9;
+ border:1px solid #aa815c88;color:#f2ddc1;
+}
+.shop-world-controls b{color:#ffd28f}
+.shop-world-prompt{
+ bottom:17px;left:50%;border:1px solid #d7b17f;background:#2b211be8;
+ box-shadow:0 3px 10px #100b08a6;color:#fff1d8;pointer-events:none;
+}
+.shop-world-prompt span{background:#e5bd83;color:#2c2119}
+.shop-world-crosshair{display:none}
+.shop-world-mobile{display:none!important}
+.shop-world-actionbar{
+ right:13px;top:auto;bottom:13px;flex-direction:row;gap:6px;
+}
+.shop-world-actionbar button{
+ min-width:84px;padding:7px 9px;border:1px solid #b58c65;
+ border-bottom:3px solid #71482f;border-radius:4px;
+ background:linear-gradient(#5b4637,#352820);color:#f4e4ce;
+ font:11px Georgia,serif;box-shadow:0 3px 7px #120b0888;
+}
+.shop-world-actionbar button:hover{background:linear-gradient(#a86e4e,#694331);color:#fff4e5}
+.shop-world-actionbar button span{color:#efc78e}
+.shop-world-foot{
+ background:#36271e;border-top:1px solid #7b5840;color:#d2b999;
+}
+.shop-world-foot span:last-child{color:#e6b47f}
+.shop-world-fallback{background:linear-gradient(135deg,#493323,#97714c);color:#f8e6c6}
+
+/* Visual-novel customer card with an original generated-in-code portrait. */
+.world-dialog{
+ left:50%;top:15px;bottom:auto;z-index:10;width:min(660px,calc(100% - 190px));
+ max-width:660px;max-height:48%;overflow:visible;transform:translateX(-50%);
+ filter:drop-shadow(0 7px 12px #20130ecc);
+}
+.world-dialog:empty{display:none}
+.world-dialog .dialog{
+ position:relative;display:flex;gap:13px;align-items:flex-start;
+ margin:0;padding:11px 14px;border:1.5px solid #8d6547;border-radius:4px;
+ background:linear-gradient(135deg,#fbf0d7,#ddc6a5);
+ box-shadow:inset 0 1px #fff8,0 3px 0 #573a29;color:#443326;
+}
+.world-dialog .dialog:after{
+ content:"";position:absolute;left:52%;bottom:-13px;width:22px;height:22px;
+ background:#e2cba9;border-right:1px solid #8d6547;border-bottom:1px solid #8d6547;
+ transform:rotate(45deg);z-index:-1;
+}
+.dialog-portrait{
+ flex:0 0 76px;width:76px;height:82px;overflow:hidden;display:grid;place-items:end;
+ border:1px solid #a17c5a;background:linear-gradient(#b4c5bd,#ead2ad);
+ box-shadow:inset 0 1px #fff9;
+}
+.dialog-portrait svg{width:68px;height:82px;display:block}
+.dialog-copy{min-width:0;flex:1}
+.world-dialog .dialog .who{
+ color:#69412f;font:bold 14px Georgia,serif;margin:0 0 5px;
+}
+.world-dialog .dialog p{
+ margin:0 0 9px;min-height:0;color:#463a2d;font:13px/1.48 Georgia,serif;
+}
+.world-dialog .choices{display:flex;flex-wrap:wrap;gap:6px}
+.world-dialog .choices .btn{
+ padding:5px 9px;border:1px solid #9a704d;border-bottom:3px solid #744a30;
+ border-radius:3px;background:linear-gradient(#f3dfbc,#d0ac7f);
+ color:#3c2a1d;font:12px Georgia,serif;
+}
+.world-dialog .choices .btn:hover{background:#f8e8c8}
+.world-dialog .choices .btn:active{transform:translateY(1px);border-bottom-width:2px}
+@media(max-width:700px){
+ .shop-world{height:68vh;min-height:490px}
+ .shop-world-topbar{align-items:flex-start;flex-direction:row}
+ .shop-world-stats{gap:8px;font-size:10px}
+ .shop-world-actionbar{right:7px;bottom:8px;left:7px;justify-content:center;flex-wrap:wrap}
+ .shop-world-actionbar button{min-width:68px;padding:6px 7px;font-size:10px}
+ .shop-world-controls{left:7px;bottom:57px}
+ .shop-world-clock{left:8px;top:67px}
+ .world-dialog{top:8px;width:calc(100% - 16px);max-width:none;max-height:44%}
+ .world-dialog .dialog{gap:8px;padding:8px}
+ .dialog-portrait{flex-basis:55px;width:55px;height:66px}
+ .dialog-portrait svg{width:53px;height:65px}
+ .world-dialog .dialog p{font-size:11px}
+ .world-dialog .choices{gap:4px}
+ .world-dialog .choices .btn{font-size:10px;padding:4px 6px}
+ .shop-world-foot{font-size:10px}
+ .shop-world-foot span:last-child{display:none}
+}
+
+/* Top-down electronics workbench: device rests flat on a gridded ESD mat. */
+.workstation{
+ background:linear-gradient(145deg,#4a3427,#241a15);
+ border:3px solid #78543b;border-radius:5px;padding:10px;
+ box-shadow:inset 0 1px #f8d9b055,0 12px 24px #110b08aa;
+}
+.bench-gear{
+ background:linear-gradient(#50483f,#2d2a26);border-color:#87745f;
+ color:#f1debd;
+}
+.table{
+ min-height:570px;height:auto;overflow:hidden;
+ border:7px solid #64412c;border-radius:3px;padding:13px;
+ background:
+  radial-gradient(ellipse at center,#3c8aa0 0%,#24566a 57%,#1d4151 100%);
+ box-shadow:inset 0 0 0 2px #d9b18a66,inset 0 0 30px #0e2633a8,0 7px 15px #160d08aa;
+}
+.table:before{
+ content:"";position:absolute;inset:18px 9%;border:1px solid #c1e4e155;
+ background:
+  repeating-linear-gradient(0deg,transparent 0 19px,#d0eeee1c 19px 20px),
+  repeating-linear-gradient(90deg,transparent 0 19px,#d0eeee1c 19px 20px);
+ pointer-events:none;z-index:0;
+}
+.table svg{position:relative;z-index:1;max-height:580px;filter:drop-shadow(0 8px 9px #081b2480)}
+.device3d-stage{
+ perspective:none!important;transform-style:flat!important;
+ margin:20px auto 28px;max-width:900px;
+}
+.device-hit-layer{transform-style:flat!important}
+.device-hit-layer svg{transform:none!important;filter:drop-shadow(0 8px 10px #07131b88)!important}
+.device3d-stage.is-dragging .device-hit-layer svg{cursor:grabbing}
+.bench-props{opacity:.92}
+.bench-gear .work-lamp i{box-shadow:0 0 18px #ffe5b4a8}
+.repair-note{
+ transform:rotate(-1deg);background:
+  repeating-linear-gradient(0deg,transparent 0 21px,#8a6c4533 21px 22px),
+  linear-gradient(145deg,#f7efd9,#d9c49c);
+ border:1px solid #b8a37f;box-shadow:0 7px 18px #0a1b26aa;color:#4d3b28;
+ pointer-events:none!important;
+}
+.note-heading{color:#75563d}
+.note-progress span{background:linear-gradient(90deg,#75aab5,#9bc7c4)}
+
+/* Windows 98/2000 computer shell: square chrome, bevels and chunky scrollbars. */
+.crt{
+ background:linear-gradient(145deg,#d8d4cb,#8e8a82);
+ border:5px solid #7c786f;border-radius:18px 18px 12px 12px;
+ padding:12px;box-shadow:inset 0 2px #fff9,0 10px 24px #100b0877;color:#111;
+}
+.win{
+ border:2px solid #4e4d4b;background:#c8c6c0;
+ box-shadow:inset 1px 1px #fff, inset -1px -1px #777;
+ font-family:Tahoma,Arial,sans-serif;font-size:13px;
+}
+.win .title{
+ background:linear-gradient(90deg,#082e68,#1e79bb 72%,#4a9ac7);
+ min-height:25px;padding:4px 6px;color:#fff;font-weight:bold;
+}
+.win .title span:last-child{
+ padding:0 4px;background:#c7c4bc;border:1px outset #fff;color:#111;
+ font-size:12px;letter-spacing:2px;
+}
+.win .menu{background:#c8c6c0;border-bottom:1px solid #777}
+.win .menu button{
+ padding:3px 9px;border:2px outset #f7f7f7;background:#d4d2ca;
+ color:#161616;font:12px Tahoma,Arial,sans-serif;
+}
+.win .menu button[aria-selected="true"]{border-style:inset;background:#bcbab2}
+.win .page{
+ background:#ecebe6;color:#171717;border:1px solid #999;
+ min-height:330px;max-height:560px;overflow:auto;
+ scrollbar-color:#bcbab2 #ecebe6;scrollbar-width:auto;
+}
+.win .page::-webkit-scrollbar{width:17px;height:17px}
+.win .page::-webkit-scrollbar-track{background:#d3d1c9;border:1px solid #888}
+.win .page::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#f4f3ec,#aaa79f);border:2px outset #fff}
+.win th{background:#d9d7ce}
+.win .marq{background:#f3e4a5;border:1px solid #a18c59;color:#71542e}
+.win button.buy{background:#d3d0c8;border:2px outset #fff;color:#111;padding:3px 9px;font:12px Tahoma,Arial,sans-serif}
+.win button.buy:active{border-style:inset}
+@media(max-width:650px){
+ .table{min-height:500px;height:auto}
+ .device3d-stage{margin:10px auto 20px;max-width:100%}
+ .table:has(.board-view) .device3d-stage{left:auto!important;top:auto!important;width:min(100%,690px)!important}
+ .repair-note{width:176px;min-height:134px;right:6px;bottom:8px}
+}

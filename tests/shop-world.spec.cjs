@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test('first-person shop loads, customer story plays and retro web store works', async ({ page }) => {
+test('isometric shop loads, customer story plays and retro web store works', async ({ page }) => {
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
   await page.goto('/');
@@ -14,7 +14,9 @@ test('first-person shop loads, customer story plays and retro web store works', 
     height: canvas.clientHeight
   }));
   expect(size.width).toBeGreaterThan(300);
-  expect(size.height).toBeGreaterThan(250);
+  expect(size.height).toBeGreaterThan(350);
+  await expect(page.locator('.shop-world-clock')).toBeVisible();
+  await expect(page.locator('.shop-world-controls')).toContainText('KLICK');
 
   await page.locator('[data-world-action="customer"]').click();
   await expect(page.locator('#dlg .dialog')).toBeVisible();

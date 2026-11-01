@@ -205,8 +205,8 @@
       const faceMaterial=new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,alphaTest:.012,side:T.DoubleSide,depthWrite:false});
       const face=new T.Mesh(new T.PlaneGeometry(400,300),faceMaterial),frontZ=depth/2+.35;face.position.z=frontZ;face.renderOrder=2;model.add(face);
       if(st.coverOff)addBoardComponents(model,j,frontZ);else{addDeviceDetails(model,j,frontZ);if(st.flipped)addScrews(model,j,frontZ)}
-      model.rotation.x=(Number.isFinite(st.boardOut?st.boardRotX:st.viewRotX)?(st.boardOut?st.boardRotX:st.viewRotX):13)*Math.PI/180;
-      model.rotation.y=(Number.isFinite(st.boardOut?st.boardRotY:st.viewRotY)?(st.boardOut?st.boardRotY:st.viewRotY):-17)*Math.PI/180;
+      model.rotation.x=(Number.isFinite(st.boardOut?st.boardRotX:st.viewRotX)?(st.boardOut?st.boardRotX:st.viewRotX):0)*Math.PI/180;
+      model.rotation.y=(Number.isFinite(st.boardOut?st.boardRotY:st.viewRotY)?(st.boardOut?st.boardRotY:st.viewRotY):0)*Math.PI/180;
       if(portrait)model.rotation.z=-Math.PI/2;
       const resize=()=>{if(!stage.isConnected)return;const r=stage.getBoundingClientRect();renderer.setSize(Math.max(1,r.width),Math.max(1,r.height),false);renderer.render(scene,camera)};
       window.addEventListener('resize',resize);
@@ -244,8 +244,8 @@
   function attachRotation(j){
     if(!active||!active.stage||!active.stage.isConnected||active.j.id!==j.id)return;
     const svg=active.svg,stage=active.stage,st=j.st,isBoard=!!st.boardOut;
-    let x=Number.isFinite(isBoard?st.boardRotX:st.viewRotX)?(isBoard?st.boardRotX:st.viewRotX):13;
-    let y=Number.isFinite(isBoard?st.boardRotY:st.viewRotY)?(isBoard?st.boardRotY:st.viewRotY):-17;
+    let x=Number.isFinite(isBoard?st.boardRotX:st.viewRotX)?(isBoard?st.boardRotX:st.viewRotX):0;
+    let y=Number.isFinite(isBoard?st.boardRotY:st.viewRotY)?(isBoard?st.boardRotY:st.viewRotY):0;
     const apply=()=>{
       active.model.rotation.x=x*Math.PI/180;active.model.rotation.y=y*Math.PI/180;active.renderer.render(active.scene,active.camera);
       svg.style.transform=`rotateX(${x}deg) rotateY(${y}deg) translateZ(${active.frontZ}px)`;
@@ -262,7 +262,7 @@
     const end=()=>{if(!drag)return;drag=null;stage.classList.remove('is-dragging');if(isBoard){st.boardRotX=x;st.boardRotY=y}else{st.viewRotX=x;st.viewRotY=y}if(typeof save==='function')save()};
     svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end);
     const reset=document.getElementById('a_rotate_reset');
-    if(reset){const old=reset.onclick;reset.onclick=function(){x=isBoard?21:13;y=isBoard?-14:-17;apply();if(isBoard){st.boardRotX=x;st.boardRotY=y}else{st.viewRotX=x;st.viewRotY=y}if(typeof save==='function')save();if(old)old()}}
+    if(reset){const old=reset.onclick;reset.onclick=function(){x=0;y=0;apply();if(isBoard){st.boardRotX=x;st.boardRotY=y}else{st.viewRotX=x;st.viewRotY=y}if(typeof save==='function')save();if(old)old()}}
   }
   window.Kuroneko3D={mount,attachRotation,dispose};
 })();

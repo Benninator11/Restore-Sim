@@ -294,11 +294,8 @@ function renderShop(){
       <div class="shop-world-title"><b>Kuroneko Electronics</b><span>${it?(isBusy?'KUNDENGESPRÄCH':'KUNDE WARTET'):'SHOP · FREIE ZEIT'}</span></div>
       <div class="shop-crosshair" aria-hidden="true"></div>
       <div class="shop-world-prompt"><span>E</span><strong>Interagieren</strong></div>
-      <div class="shop-world-controls"><span><b>W A S D</b> Bewegen</span><span><b>Maus</b> Umschauen</span><span><b>Shift</b> Sprinten</span><span><b>E</b> Interagieren</span></div>
-      <div class="shop-world-mobile">
-        <button type="button" data-move="w" aria-label="Vorwärts">▲</button>
-        <div><button type="button" data-move="a" aria-label="Links">◀</button><button type="button" data-move="s" aria-label="Rückwärts">▼</button><button type="button" data-move="d" aria-label="Rechts">▶</button></div>
-      </div>
+      <div class="shop-world-clock"><b>09:08</b><small>TOKYO · 2005</small></div>
+      <div class="shop-world-controls"><span><b>KLICK</b> Ort auswählen</span><span><b>E</b> Interagieren</span></div>
       <div class="shop-world-actionbar">
         <button type="button" data-world-action="customer"><span>♙</span>Kunde</button>
         <button type="button" data-world-action="bench"><span>⚒</span>Werkbank</button>
@@ -308,7 +305,7 @@ function renderShop(){
       </div>
       <div id="dlg" class="world-dialog"></div>
     </div>
-    <div class="shop-world-foot"><span>${it?(isBusy?'Das Gespräch läuft. Wähle eine Antwort im Dialog.':name+' ist angekommen. Gehe zum Tresen oder nutze „Kunde“.'):'Der Laden ist ruhig. Arbeite an Aufträgen, bestelle Ersatzteile oder beende den Tag.'}</span><span>3D · FIRST PERSON · SINGLE PLAYER</span></div>
+    <div class="shop-world-foot"><span>${it?(isBusy?'Das Gespräch läuft. Wähle eine Antwort im Dialog.':name+' ist angekommen. Gehe zum Tresen oder nutze „Kunde“.'):'Der Laden ist ruhig. Arbeite an Aufträgen, bestelle Ersatzteile oder beende den Tag.'}</span><span>ISOMETRIC SHOP · Y2K EDITION</span></div>
   </div>`;
   let body='';
   if(S.phase==='end'){body=''}
@@ -340,7 +337,7 @@ function startItem(){
 }
 function drawDlg(){
   const n=NODES[cur.node],box=$('#dlg');
-  box.innerHTML=`<div class="dialog"><div class="who">${n.w}</div><p>${n.t}</p><div class="choices">${n.c.map((c,i)=>`<button class="btn alt" data-i="${i}">${c.l}</button>`).join('')}</div></div>`;
+  box.innerHTML=`<div class="dialog dialogue-vn"><div class="dialog-portrait">${avatar(n.w)}</div><div class="dialog-copy"><div class="who">${n.w}</div><p>${n.t}</p><div class="choices">${n.c.map((c,i)=>`<button class="btn alt" data-i="${i}">${c.l}</button>`).join('')}</div></div></div>`;
   box.querySelectorAll('button').forEach(b=>b.onclick=()=>choose(+b.dataset.i));
 }
 function choose(i){
@@ -363,7 +360,7 @@ function createJob(c){
 function showQuote(job){
   const base=job.fee;
   cur.quote=true;
-  $('#dlg').innerHTML=`<div class="dialog"><div class="who">Kassenzettel: ${DEV[job.dev].name}</div><p>Symptom: ${job.faults.map(f=>SYMPTOM[f]).join(', ')}.<br>Wie viel verlangst du für die Reparatur?</p><div class="choices"><button class="btn alt" data-m=".8">Günstig ${yen(base*.8)} (Ruf +1)</button><button class="btn alt" data-m="1">Fair ${yen(base)}</button><button class="btn alt" data-m="1.3">Teuer ${yen(base*1.3)} (Ruf -2, Kunde könnte meckern)</button></div></div>`;
+  $('#dlg').innerHTML=`<div class="dialog dialogue-vn"><div class="dialog-portrait">${avatar(cur&&cur.node?NODES[cur.node].w:'Kuroneko Repair')}</div><div class="dialog-copy"><div class="who">Kassenzettel: ${DEV[job.dev].name}</div><p>Symptom: ${job.faults.map(f=>SYMPTOM[f]).join(', ')}.<br>Wie viel verlangst du für die Reparatur?</p><div class="choices"><button class="btn alt" data-m=".8">Günstig ${yen(base*.8)} (Ruf +1)</button><button class="btn alt" data-m="1">Fair ${yen(base)}</button><button class="btn alt" data-m="1.3">Teuer ${yen(base*1.3)} (Ruf -2, Kunde könnte meckern)</button></div></div></div>`;
   $('#dlg').querySelectorAll('button').forEach(b=>b.onclick=()=>{
     const m=+b.dataset.m;job.fee=Math.round(base*m/100)*100;
     if(m<1)applyFx({rep:1});if(m>1)applyFx({rep:-2});
