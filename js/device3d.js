@@ -186,7 +186,8 @@
         if(!active||active.stage!==stage){texture.dispose();return}
         viewer3D.textureReady=true;if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
         faceMaterial.map=texture;faceMaterial.opacity=1;faceMaterial.needsUpdate=true;
-        svg.style.opacity='.001';renderer.render(scene,camera);
+        /* Keep the closed/front/back device face visible; only the opened board uses the WebGL texture alone. */
+        svg.style.opacity=st.coverOff?'.001':'1';renderer.render(scene,camera);
       },err=>{
         if(active!==viewer3D)return;
         if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
