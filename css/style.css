@@ -288,3 +288,7 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 .device3d-stage.is-dragging #dsv{transition:none!important;cursor:grabbing}
 
 .device3d-stage.is-dragging #dsv{transition:none!important;cursor:grabbing}
+
+.device-hit-layer svg{opacity:1}
+.device3d-canvas{min-width:1px;min-height:1px}
+.device3d-fallback .device3d-canvas{display:none}

@@ -44,8 +44,8 @@
     const mesh=new T.Mesh(new T.TorusGeometry(r,tube,10,48),basic(hex||'#aab4c0',.28,.68));
     mesh.position.set(x,y,z);mesh.castShadow=true;parent.add(mesh);return mesh;
   }
-  function makeSvgTexture(svg,onReady){
-    const clone=svg.cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');clone.setAttribute('viewBox','0 0 400 300');clone.setAttribute('width','1200');clone.setAttribute('height','900');
+  function makeSvgTexture(svg,onReady,onFail){
+    const clone=svg.cloneNode(true);clone.removeAttribute('style');clone.setAttribute('xmlns','http://www.w3.org/2000/svg');clone.setAttribute('viewBox','0 0 400 300');clone.setAttribute('width','1200');clone.setAttribute('height','900');
     const mainGroup=clone.querySelector('g[transform]');if(mainGroup)mainGroup.removeAttribute('transform');
     const style=document.createElementNS('http://www.w3.org/2000/svg','style');style.textContent='.front-screen{fill:url(#glass);stroke:#080b13;stroke-width:5}.device-front{filter:none}text{font-family:Arial,monospace}';clone.insertBefore(style,clone.firstChild);
     const source=new XMLSerializer().serializeToString(clone),url=URL.createObjectURL(new Blob([source],{type:'image/svg+xml;charset=utf-8'})),image=new Image();
@@ -53,13 +53,13 @@
       try{
         const canvas=document.createElement('canvas');canvas.width=1200;canvas.height=900;const ctx=canvas.getContext('2d');ctx.clearRect(0,0,1200,900);ctx.drawImage(image,0,0,1200,900);
         const texture=new T.CanvasTexture(canvas);if(T.SRGBColorSpace)texture.colorSpace=T.SRGBColorSpace;texture.anisotropy=4;texture.needsUpdate=true;onReady(texture);
-      }catch(err){console.warn('SVG-Textur konnte nicht erstellt werden',err)}
+      }catch(err){console.warn('SVG-Textur konnte nicht erstellt werden',err);if(onFail)onFail(err)}
       URL.revokeObjectURL(url);
     };
-    image.onerror=()=>{URL.revokeObjectURL(url);console.warn('SVG-Textur konnte nicht geladen werden')};image.src=url;
+    image.onerror=()=>{const err=new Error('SVG-Textur konnte nicht geladen werden');URL.revokeObjectURL(url);console.warn(err.message);if(onFail)onFail(err)};image.src=url;
   }
   function dispose(){
-    if(!active)return;window.removeEventListener('resize',active.resize);active.renderer.dispose();
+    if(!active)return;window.removeEventListener('resize',active.resize);if(active.textureTimer)clearTimeout(active.textureTimer);active.renderer.dispose();
     active.scene.traverse(o=>{
       if(o.geometry)o.geometry.dispose();
       if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>{if(m.map)m.map.dispose();m.dispose()});
@@ -148,9 +148,9 @@
   }
   function mount(j){
     const stage=document.getElementById('device3d-stage'),host=document.getElementById('device3d-canvas'),svg=document.getElementById('dsv');
-    if(!stage||!host||!svg)return;dispose();stage.classList.remove('device3d-fallback');
+    if(!stage||!host||!svg)return;dispose();stage.classList.remove('device3d-fallback');host.innerHTML='';host.style.display='block';svg.style.opacity='1';
     const d=DEV[j.dev],st=j.st,portrait=!!d.portrait,viewHeight=portrait?400:300,viewWidth=portrait?300:400,rect=stage.getBoundingClientRect();
-    if(!T||!T.WebGLRenderer){stage.classList.add('device3d-fallback');svg.style.opacity='1';stage.insertAdjacentHTML('beforeend','<div class="device3d-error">WebGL ist in diesem Browser nicht verfügbar – klassische Ansicht wird gezeigt.</div>');return}
+    if(!T||!T.WebGLRenderer){host.style.display='none';stage.classList.add('device3d-fallback');svg.style.opacity='1';stage.insertAdjacentHTML('beforeend','<div class="device3d-error">WebGL ist in diesem Browser nicht verfügbar – klassische Ansicht wird gezeigt.</div>');return}
     let renderer,scene,camera;
     try{
       renderer=new T.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'});
@@ -167,7 +167,7 @@
       const geo=new T.ExtrudeGeometry(shape,{depth,bevelEnabled:true,bevelThickness:Math.min(2,depth*.22),bevelSize:1.8,bevelSegments:3,steps:1,curveSegments:16});geo.computeVertexNormals();
       const front=basic(st.boardOut?'#245b40':d.color,.35,.35),side=basic(st.boardOut?'#22533e':d.color,.34,.42);
       const body=new T.Mesh(geo,[front,side]);body.position.z=-depth/2;body.castShadow=true;body.receiveShadow=true;model.add(body);
-      const faceMaterial=new T.MeshBasicMaterial({color:0xffffff,transparent:true,alphaTest:.012,side:T.DoubleSide,depthWrite:false});
+      const faceMaterial=new T.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,alphaTest:.012,side:T.DoubleSide,depthWrite:false});
       const face=new T.Mesh(new T.PlaneGeometry(400,300),faceMaterial),frontZ=depth/2+.35;face.position.z=frontZ;face.renderOrder=2;model.add(face);
       if(st.coverOff)addBoardComponents(model,j,frontZ);else{addDeviceDetails(model,j,frontZ);if(st.flipped)addScrews(model,j,frontZ)}
       model.rotation.x=(Number.isFinite(st.boardOut?st.boardRotX:st.viewRotX)?(st.boardOut?st.boardRotX:st.viewRotX):13)*Math.PI/180;
@@ -175,12 +175,28 @@
       if(portrait)model.rotation.z=-Math.PI/2;
       const resize=()=>{if(!stage.isConnected)return;const r=stage.getBoundingClientRect();renderer.setSize(Math.max(1,r.width),Math.max(1,r.height),false);renderer.render(scene,camera)};
       window.addEventListener('resize',resize);
-      active={stage,renderer,scene,camera,model,face,faceMaterial,svg,resize,frontZ,depth,j};
-      makeSvgTexture(svg,texture=>{if(!active||active.stage!==stage){texture.dispose();return}faceMaterial.map=texture;faceMaterial.needsUpdate=true;renderer.render(scene,camera)});
+      active={stage,host,renderer,scene,camera,model,face,faceMaterial,svg,resize,frontZ,depth,j,textureReady:false,textureTimer:null};
+      const viewer3D=active;
+      viewer3D.textureTimer=setTimeout(()=>{
+        if(active!==viewer3D||viewer3D.textureReady)return;
+        faceMaterial.opacity=0;host.style.display='none';svg.style.opacity='1';stage.classList.add('device3d-fallback');
+        console.warn('3D-Textur dauerte zu lange – Geräteansicht bleibt sichtbar.');
+      },8000);
+      makeSvgTexture(svg,texture=>{
+        if(!active||active.stage!==stage){texture.dispose();return}
+        viewer3D.textureReady=true;if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
+        faceMaterial.map=texture;faceMaterial.opacity=1;faceMaterial.needsUpdate=true;
+        svg.style.opacity='.001';renderer.render(scene,camera);
+      },err=>{
+        if(active!==viewer3D)return;
+        if(viewer3D.textureTimer)clearTimeout(viewer3D.textureTimer);
+        faceMaterial.opacity=0;host.style.display='none';svg.style.opacity='1';stage.classList.add('device3d-fallback');
+        console.warn('3D-Oberfläche verwendet die sichtbare Geräteansicht als Fallback.',err);
+      });
       renderer.render(scene,camera);stage.style.perspective=cameraZ+'px';stage._kuroneko3D=active;
     }catch(err){
       console.error('3D-Werkbank konnte nicht gestartet werden:',err);if(renderer)renderer.dispose();
-      host.innerHTML='';stage.classList.add('device3d-fallback');svg.style.opacity='1';
+      host.innerHTML='';host.style.display='none';stage.classList.add('device3d-fallback');svg.style.opacity='1';
       stage.insertAdjacentHTML('beforeend','<div class="device3d-error">3D konnte nicht initialisiert werden. Die normale Werkbank bleibt verfügbar.</div>');
     }
   }
