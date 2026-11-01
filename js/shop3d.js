@@ -104,6 +104,17 @@ function mount(host,cfg={}){
   const camera=new T.PerspectiveCamera(68,w/h,.08,48);camera.position.set(0,1.62,4.45);camera.rotation.order='YXZ';
   const targets=[],customer=build(scene,targets,cfg),ray=new T.Raycaster(),keys=new Set();
   let yaw=0,pitch=0,last=performance.now(),raf=0,found=null,touch=null;const player={x:0,z:4.45};
+  // Low invisible collision rectangles keep the player out of desks, counters and shelves.
+  const obstacles=[
+    {x1:-1.88,x2:1.88,z1:-2.98,z2:-1.82}, // counter
+    {x1:-4.45,x2:-1.82,z1:-1.94,z2:-.34}, // repair bench
+    {x1:1.82,x2:4.15,z1:-1.88,z2:-.52}, // PC desk
+    {x1:2.54,x2:4.72,z1:-5.92,z2:-5.00} // parts shelf
+  ];
+  const blocked=(x,z)=>{
+    const r=.24;
+    return obstacles.some(o=>x+r>o.x1&&x-r<o.x2&&z+r>o.z1&&z-r<o.z2);
+  };
   const prompt=host.querySelector('.shop-world-prompt'),cross=host.querySelector('.shop-crosshair');
   const setFound=v=>{found=v;if(prompt)prompt.classList.toggle('active',!!v);if(prompt){const p=prompt.querySelector('strong');if(p)p.textContent=v?v.label:''}if(cross)cross.classList.toggle('hot',!!v)};
   const aim=()=>{ray.setFromCamera(new T.Vector2(0,0),camera);const h=ray.intersectObjects(targets,false).find(o=>o.distance<5);setFound(h?h.object.userData:null)};
@@ -124,8 +135,12 @@ function mount(host,cfg={}){
   const tick=now=>{
    if(!active||active.host!==host)return;const dt=Math.min(.05,(now-last)/1000||0);last=now;
    const f=(keys.has('w')||keys.has('arrowup')?1:0)-(keys.has('s')||keys.has('arrowdown')?1:0),s=(keys.has('d')||keys.has('arrowright')?1:0)-(keys.has('a')||keys.has('arrowleft')?1:0);
-   const v=2.65*dt,fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
-   player.x=Math.max(-4.3,Math.min(4.3,player.x+(fx*f+rx*s)*v));player.z=Math.max(-5.25,Math.min(4.72,player.z+(fz*f+rz*s)*v));
+   const sprint=keys.has('shift'),v=2.65*(sprint?1.55:1)*dt,fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
+   const nx=Math.max(-4.3,Math.min(4.3,player.x+(fx*f+rx*s)*v));
+   const nz=Math.max(-5.25,Math.min(4.72,player.z+(fz*f+rz*s)*v));
+   // Resolve each axis separately so the player can slide along furniture edges.
+   if(!blocked(nx,player.z))player.x=nx;
+   if(!blocked(player.x,nz))player.z=nz;
    camera.position.set(player.x,1.62,player.z);camera.rotation.set(pitch,yaw,0,'YXZ');if(customer)customer.position.y=Math.sin(now*.0018)*.015;
    aim();renderer.render(scene,camera);active.raf=requestAnimationFrame(tick);
   };

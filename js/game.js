@@ -270,7 +270,7 @@ function renderShop(){
       <div class="shop-world-title"><b>Kuroneko Electronics</b><span>${it?(isBusy?'KUNDENGESPRÄCH':'KUNDE WARTET'):'SHOP · FREIE ZEIT'}</span></div>
       <div class="shop-crosshair" aria-hidden="true"></div>
       <div class="shop-world-prompt"><span>E</span><strong>Interagieren</strong></div>
-      <div class="shop-world-controls"><span><b>W A S D</b> Bewegen</span><span><b>Maus</b> Umschauen</span><span><b>E</b> Interagieren</span></div>
+      <div class="shop-world-controls"><span><b>W A S D</b> Bewegen</span><span><b>Maus</b> Umschauen</span><span><b>Shift</b> Sprinten</span><span><b>E</b> Interagieren</span></div>
       <div class="shop-world-mobile">
         <button type="button" data-move="w" aria-label="Vorwärts">▲</button>
         <div><button type="button" data-move="a" aria-label="Links">◀</button><button type="button" data-move="s" aria-label="Rückwärts">▼</button><button type="button" data-move="d" aria-label="Rechts">▶</button></div>
