@@ -76,7 +76,7 @@ test('workbench keeps the blue mat design after tools, tabs and re-renders', asy
   expect(initial).toContain('linear-gradient');
   expect(initial).not.toContain('data:image/svg+xml');
   const oldOverride = await page.locator('style').evaluateAll(styles =>
-    styles.some(style => /\\.table\\{background:var\\(--wood\\)/.test(style.textContent))
+    styles.some(style => style.textContent.includes('.table{background:var(--wood)'))
   );
   expect(oldOverride).toBe(false);
   for (const tool of ['hand','driver','tweezers','brush','cloth','meter','chiptest','solder','hotair','spudger','microscope','ultrasonic']) {
