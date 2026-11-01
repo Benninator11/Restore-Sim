@@ -284,3 +284,5 @@ h1,h2,h3{font-family:var(--f-display);font-weight:400;margin:0;letter-spacing:.0
 .device3d-fallback .device-hit-layer svg{opacity:1!important;position:relative}
 .device3d-stage .device3d-error{position:absolute;left:8px;right:8px;bottom:8px;z-index:6;color:#ffe7aa;background:#201b2ddd;border:1px solid #a88750;border-radius:5px;padding:5px 8px;text-align:center;font:11px monospace}
 @media(max-width:640px){.device3d-stage{margin-top:8px;margin-bottom:18px}}
+
+.device3d-stage.is-dragging #dsv{transition:none!important;cursor:grabbing}

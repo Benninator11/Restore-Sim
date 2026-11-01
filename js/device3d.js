@@ -73,6 +73,12 @@
   function addPartMesh(group,p,state,frontZ){
     if(state==='removed')return;const x=p.x+p.w/2-200,y=150-(p.y+p.h/2),broken=state==='broken',base=frontZ+.6,w=Math.max(5,p.w),h=Math.max(5,p.h);
     const damaged=broken?'#6d3034':'#8e9aa7';
+    const count=typeof partPinCount==='function'?partPinCount(p):8,perSide=Math.ceil(count/2);
+    for(let i=0;i<perSide;i++){
+      const px=x-w/2+(i+.5)*w/perSide,padW=Math.max(1.2,w/perSide*.38);
+      addBox(group,padW,4,1.2,px,y-h/2-1.8,base+1.1,'#c6a86a',{roughness:.27,metalness:.8});
+      addBox(group,padW,4,1.2,px,y+h/2+1.8,base+1.1,'#c6a86a',{roughness:.27,metalness:.8});
+    }
     if(['screen','trackpad'].includes(p.id)){addBox(group,w,h,p.id==='screen'?4:3,x,y,base+2,p.id==='screen'?'#17222e':'#9da5b0',{roughness:.2,metalness:.25});return}
     if(['camera','lens','sensor'].includes(p.id)){
       addBox(group,w,h,4,x,y,base+2,damaged);const r=Math.min(w,h)*.34;addCylinder(group,r,7,x,y,base+6,'#8996a5',36);addCylinder(group,r*.72,4,x,y,base+10,'#111a27',36);addCylinder(group,r*.36,2,x-2,y+2,base+13,'#31506b',32);return;
@@ -126,14 +132,14 @@
   function addDeviceDetails(group,j,frontZ){
     const form=DEV[j.dev].form;
     addBox(group,5,25,8,-194,18,0,'#aab2bc');addBox(group,5,17,8,-194,-18,0,'#687684');addBox(group,5,24,8,194,-10,0,'#aab2bc');
-    addBox(group,42,8,10,0,-138,0,'#18212d');addBox(group,32,5,5,0,-140,4,'#b9c2ca');
+    addBox(group,42,8,10,0,-138,frontZ+3,'#18212d');addBox(group,32,5,5,0,-140,frontZ+8,'#b9c2ca');
     if(form==='camera'){
       addCylinder(group,59,10,70,5,frontZ+3,'#7f8995',48);addTorus(group,53,5,70,5,frontZ+8,'#c5ced8');addCylinder(group,39,5,70,5,frontZ+10,'#111d2b',48);addCylinder(group,18,2,67,8,frontZ+13,'#315674',32);
       addBox(group,74,18,9,-90,88,frontZ+3,'#161d26');
     }else if(form==='speaker'){addCylinder(group,84,8,0,4,frontZ+3,'#313a46',48);addTorus(group,78,5,0,4,frontZ+8,'#bac5cf');addCylinder(group,42,5,0,4,frontZ+10,'#566372',40)}
     else if(form==='radio'){addCylinder(group,36,11,95,0,frontZ+3,'#8d7357',40);addTorus(group,31,3,95,0,frontZ+9,'#d4bd91')}
     else if(form==='router'){
-      [-145,145].forEach(x=>{const rod=new T.Mesh(new T.CylinderGeometry(4,5,165,16),basic('#303b49',.32,.55));rod.position.set(x,80,0);rod.rotation.z=x<0?.2:-.2;group.add(rod);addCylinder(group,7,4,x,-2,frontZ+2,'#a9b5c2',20)});
+      [-145,145].forEach(x=>{const rod=new T.Mesh(new T.CylinderGeometry(4,5,90,16),basic('#303b49',.32,.55));rod.position.set(x,108,frontZ+2);rod.rotation.z=x<0?.2:-.2;group.add(rod);addCylinder(group,7,4,x,62,frontZ+2,'#a9b5c2',20)});
     }else if(form==='laptop'){
       addBox(group,320,44,7,0,-124,frontZ+3,'#838d9b');for(let r=0;r<3;r++)for(let c=0;c<12;c++)addBox(group,15,6,1.5,-135+c*24,-112+r*11,frontZ+7,'#333c48');
     }else if(form==='watch')addBox(group,86,110,5,0,0,frontZ+2,'#101a27');
