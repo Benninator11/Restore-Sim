@@ -1,5 +1,7 @@
 # Restore-Sim — Kuroneko Repair
 
+> **Kurzbeschreibung:** Restore-Sim – Kuroneko Repair ist ein eigenständiges Browser-Spiel über einen kleinen Elektronik-Reparaturladen. Es verbindet eine begehbare 3D-Ladenwelt, Kundenaufträge, Geräte- und Platinenreparaturen sowie Ladenwirtschaft und Fortschritt.
+
 Ein eigenständiges Browser-Spiel über einen kleinen Elektronik-Reparaturladen in Tokio im Jahr 2005. Das Spiel orientiert sich am Genre gemütlicher Reparatur- und Ladenmanagement-Simulationen, verwendet aber eigene Figuren, Dialoge, Geräte, Namen, 3D-Modelle und Grafiken.
 
 ## Spielen
